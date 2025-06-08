@@ -14,7 +14,7 @@ namespace BinarySerializerLibrary.Serializers
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
         {
             // Десераилизация размера массива
-            var objectExistance = BaseTypeSerializerMapper.DeserializeValue<bool>(reader.ReadValue(1), 1);
+            var objectExistance = BaseTypeSerializerMapper.DeserializeValue<bool>(reader.ReadValue(1, attribute.Alignment), 1);
 
             if (objectExistance)
             {
@@ -40,12 +40,12 @@ namespace BinarySerializerLibrary.Serializers
             if (obj is null)
             {
                 // Сериализация флага присутсвия объекта (существует ли объект)
-                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(false, 1));
+                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(false, 1), attribute.Alignment);
             }
             else
             {
                 // Сериализация флага присутсвия объекта (существует ли объект)
-                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1));
+                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
 
                 var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());
 

@@ -13,9 +13,12 @@ namespace BinarySerializerLibrary.Attributes
 
         public BinaryArgumentTypeEnum FieldType { get; protected set; }
 
-        public BinaryTypeBaseAttribute(BinaryArgumentTypeEnum fieldType)
+        public AlignmentTypeEnum Alignment { get; protected set; }
+
+        public BinaryTypeBaseAttribute(BinaryArgumentTypeEnum fieldType, AlignmentTypeEnum alignment)
         {
             FieldType = fieldType;
+            Alignment = alignment;
         }
 
         public abstract BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single);

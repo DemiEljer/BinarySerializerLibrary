@@ -1,3 +1,4 @@
+using BinarySerializerLibrary.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,13 +48,34 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Записать битовое поле
         /// </summary>
-        public void AppendBitValue(int bitsCount, UInt64 value)
+        public void AppendBitValue(int bitsCount, UInt64 value, AlignmentTypeEnum alignment)
         {
-            // Вызов логики дополнения вектора байт
+            // Применение логики выравнивания
+            int alignmentOffset = 0;
+            // Выбор типа выравнивания
+            switch (alignment)
             {
-                AppendBits(bitsCount);
+                case AlignmentTypeEnum.ByteAlignment:
+                    alignmentOffset = (CurrentBitIndex % 8) == 0 ? 0 : 8 - (CurrentBitIndex % 8);
+                    break;
+                default: break;
             }
 
+            // Вызов логики дополнения вектора байт
+            {
+                AppendBits(bitsCount + alignmentOffset);
+                // В случае, если осуществляется выравнивание, производим сдвиг в векторе байт
+                if (alignmentOffset != 0)
+                {
+                    // Количество байт сдвига (гарантированно на 1 байт)
+                    int alignmentByteShifting = alignmentOffset / 8 + 1;
+
+                    _ByteList.Shift(alignmentByteShifting);
+                }
+            }
+
+            // Сдвиг индекса битов при выравнивании
+            CurrentBitIndex += alignmentOffset;
             // Количества задействованных байт
             int takingBytesCount = _GetTakenBytesCount(bitsCount);
 

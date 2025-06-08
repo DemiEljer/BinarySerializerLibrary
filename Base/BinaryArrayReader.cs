@@ -1,3 +1,4 @@
+using BinarySerializerLibrary.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,12 +53,21 @@ namespace BinarySerializerLibrary.Base
         /// </summary>
         /// <param name="bitSize"></param>
         /// <returns></returns>
-        public UInt64 ReadValue(int bitSize)
+        public UInt64 ReadValue(int bitSize, AlignmentTypeEnum alignment)
         {
             if (ByteArray is null)
             {
                 return 0;
             }
+            // Применение выравнивания
+            switch (alignment)
+            {
+                case AlignmentTypeEnum.ByteAlignment:
+                    BitIndex = (BitIndex % 8) == 0 ? BitIndex : ((BitIndex / 8) + 1) * 8;
+                    break;
+                default: break;
+            }
+
             // Вычленение значения из вектора байт
             var resultValue = ByteVectorHandler.GetVectorParamValue(ByteArray, bitSize, BitIndex);
             // Инкрементирование индекса в векторе байтов

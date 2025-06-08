@@ -21,7 +21,7 @@ namespace BinarySerializerLibrary.Serializers
             if (arrayElementType != null)
             {
                 // Десераилизация размера массива
-                var arraySize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32), 32);
+                var arraySize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
 
                 var arrayObject = Array.CreateInstance(arrayElementType, arraySize);
                 // Десериализация элементов массива 
@@ -41,7 +41,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var index in Enumerable.Range(0, arraySize))
                         {
-                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(arrayElementType, reader.ReadValue(attribute.FieldSize), attribute.FieldSize);
+                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(arrayElementType, reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
 
                             ((Array)arrayObject).SetValue(elementValue, index);
                         }
@@ -62,7 +62,7 @@ namespace BinarySerializerLibrary.Serializers
             if (obj is null)
             {
                 // Сериализация размер массива
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32));
+                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32), attribute.Alignment);
 
                 return;
             }
@@ -76,7 +76,7 @@ namespace BinarySerializerLibrary.Serializers
                 int arraySize = ((Array)obj).Length;
 
                 // Сериализация размер массива
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(arraySize, 32));
+                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(arraySize, 32), attribute.Alignment);
 
                 // Сериализация элементов вектора
                 if (arraySize > 0)
@@ -94,7 +94,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var arrayValue in ((Array)obj))
                         {
-                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(arrayElementType, arrayValue, attribute.FieldSize));
+                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(arrayElementType, arrayValue, attribute.FieldSize), attribute.Alignment);
                         }
                     }
                 }

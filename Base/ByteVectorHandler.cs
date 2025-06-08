@@ -176,15 +176,12 @@ namespace BinarySerializerLibrary.Base
             {
                 UInt64 result = 0;
 
-                // Текущий индекс байта
-                int currentBytePosition;
-                // Текущий индекс бита
-                int currentBitPosition;
-
-                if (bitSize > 8 - shift)
+                if (bitSize > (8 - shift))
                 {
-                    currentBytePosition = bitPosition / 8;
-                    currentBitPosition = 8 - shift;
+                    // Текущий индекс байта
+                    int currentBytePosition = bitPosition / 8;
+                    // Текущий индекс бита
+                    int currentBitPosition = 8 - shift;
                     // Инициализируем первые биты
                     result |= (UInt64)data[currentBytePosition] >> shift;
                     currentBytePosition += 1;
@@ -226,12 +223,10 @@ namespace BinarySerializerLibrary.Base
             // Смещение выходного значения
             int shift = bitPosition % 8;
 
-            // Текущий индекс бита
-            int currentBitPosition;
-
-            if (bitSize > 8 - shift)
+            if (bitSize > (8 - shift))
             {
-                currentBitPosition = 8 - shift;
+                // Текущий индекс бита
+                int currentBitPosition = 8 - shift;
 
                 int elementIndex = 0;
                 foreach (var dataElement in data)

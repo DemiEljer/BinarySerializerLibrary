@@ -9,13 +9,17 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeObjectAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType)
+        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        {
+        }
+
+        public BinaryTypeObjectAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
         {
         }
 
         public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeObjectAttribute(fieldType);
+            return new BinaryTypeObjectAttribute(Alignment, fieldType);
         }
     }
 }

@@ -9,14 +9,18 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeFloatAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeFloatAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType)
+        public BinaryTypeFloatAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        {
+        }
+
+        public BinaryTypeFloatAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
         {
             FieldSize = 32;
         }
 
         public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeFloatAttribute(fieldType);
+            return new BinaryTypeFloatAttribute(Alignment, fieldType);
         }
     }
 }

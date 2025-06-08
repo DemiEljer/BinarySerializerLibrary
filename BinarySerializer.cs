@@ -7,7 +7,7 @@ namespace BinarySerializerLibrary
 {
     public class BinarySerializer
     {
-        public static byte[] Serialize<TObject>(TObject obj, Action<Exception>? exceptionCallback = null)
+        public static byte[] Serialize<TObject>(TObject? obj, Action<Exception>? exceptionCallback = null)
             where TObject : class
         {
             var binaryBuilder = new BinaryArrayBuilder();

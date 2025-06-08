@@ -21,7 +21,7 @@ namespace BinarySerializerLibrary.Serializers
             if (listElementType != null)
             {
                 // Десераилизация размера списка
-                var listSize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32), 32);
+                var listSize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
                 // Создание экземпляра объекта
                 var listObject = Activator.CreateInstance(objType);
 
@@ -42,7 +42,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var index in Enumerable.Range(0, listSize))
                         {
-                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(listElementType, reader.ReadValue(attribute.FieldSize), attribute.FieldSize);
+                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(listElementType, reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
 
                             objType.GetMethod("Add")?.Invoke(listObject, new object?[] { elementValue });
                         }
@@ -63,7 +63,7 @@ namespace BinarySerializerLibrary.Serializers
             if (obj is null)
             {
                 // Сериализация размер списка
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32));
+                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32), attribute.Alignment);
 
                 return;
             }
@@ -77,7 +77,7 @@ namespace BinarySerializerLibrary.Serializers
                 int listSize = ((IList)obj).Count;
 
                 // Сериализация размер списка
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(listSize, 32));
+                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(listSize, 32), attribute.Alignment);
 
                 // Сериализация элементов списка
                 if (listSize > 0)
@@ -95,7 +95,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var arrayValue in ((IList)obj))
                         {
-                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(listElementType, arrayValue, attribute.FieldSize));
+                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(listElementType, arrayValue, attribute.FieldSize), attribute.Alignment);
                         }
                     }
                 }

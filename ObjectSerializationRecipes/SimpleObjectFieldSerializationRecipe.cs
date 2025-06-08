@@ -19,12 +19,12 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
         public override void Deserialization(object deserializingObject, BinaryArrayReader reader)
         {
-            FieldProperty.SetValue(deserializingObject, BaseTypeSerializerMapper.DeserializeValue(FieldType, reader.ReadValue(FieldAttribute.FieldSize), FieldAttribute.FieldSize));
+            FieldProperty.SetValue(deserializingObject, BaseTypeSerializerMapper.DeserializeValue(FieldType, reader.ReadValue(FieldAttribute.FieldSize, FieldAttribute.Alignment), FieldAttribute.FieldSize));
         }
 
         public override void Serialization(object serializingObject, BinaryArrayBuilder builder)
         {
-            builder.AppendBitValue(FieldAttribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(FieldType, FieldProperty.GetValue(serializingObject), FieldAttribute.FieldSize));
+            builder.AppendBitValue(FieldAttribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(FieldType, FieldProperty.GetValue(serializingObject), FieldAttribute.FieldSize), FieldAttribute.Alignment);
         }
     }
 }
