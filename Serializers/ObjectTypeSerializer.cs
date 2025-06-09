@@ -24,7 +24,6 @@ namespace BinarySerializerLibrary.Serializers
 
             return resultObject;
         }
-
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
             var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());

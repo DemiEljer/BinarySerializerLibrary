@@ -68,7 +68,7 @@ namespace BinarySerializerLibrary.Serializers
                 int listSize = ((IList)obj).Count;
 
                 // Сериализация размер списка
-                ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, listSize, builder);
+                listSize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, listSize, builder);
 
                 // Сериализация элементов списка
                 if (listSize > 0)

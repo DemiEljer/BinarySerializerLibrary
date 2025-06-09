@@ -26,9 +26,40 @@ namespace BinarySerializerLibrary.Serializers
         /// <summary>
         /// Сериализовать размер коллекции
         /// </summary>
-        public static void SerializeCollectionSize(BinaryTypeBaseAttribute attribute, int collectionSize, BinaryArrayBuilder builder)
+        public static int SerializeCollectionSize(BinaryTypeBaseAttribute attribute, int collectionSize, BinaryArrayBuilder builder)
         {
-            builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(collectionSize, 32), attribute.Alignment);
+            if (collectionSize <= 0x3F)
+            {
+                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(0, 2), attribute.Alignment);
+                builder.AppendBitValue(6, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 6), AlignmentTypeEnum.NoAlignment);
+
+                return collectionSize;
+            }
+            else if (collectionSize <= 0x3FFF)
+            {
+                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(1, 2), attribute.Alignment);
+                builder.AppendBitValue(14, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 14), AlignmentTypeEnum.NoAlignment);
+
+                return collectionSize;
+            }
+            else if (collectionSize <= 0x3FFFFF)
+            {
+                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(2, 2), attribute.Alignment);
+                builder.AppendBitValue(22, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 22), AlignmentTypeEnum.NoAlignment);
+
+                return collectionSize;
+            }
+            else if (collectionSize <= 0x3FFFFFFF)
+            {
+                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(3, 2), attribute.Alignment);
+                builder.AppendBitValue(30, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 30), AlignmentTypeEnum.NoAlignment);
+
+                return collectionSize;
+            }
+            else
+            {
+                return 0;
+            }
         }
         /// <summary>
         /// Десериализовать размер коллекции
@@ -36,7 +67,16 @@ namespace BinarySerializerLibrary.Serializers
         /// <returns></returns>
         public static int DeserializeCollectionSize(BinaryTypeBaseAttribute attribute, BinaryArrayReader reader)
         {
-            return BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
+            var sizeByteCount = BaseTypeSerializerMapper.DeserializeValue<byte>(reader.ReadValue(2, attribute.Alignment), 2);
+
+            switch (sizeByteCount)
+            {
+                case 0x00: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(6, AlignmentTypeEnum.NoAlignment), 6);
+                case 0x01: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(14, AlignmentTypeEnum.NoAlignment), 14);
+                case 0x02: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(22, AlignmentTypeEnum.NoAlignment), 22);
+                case 0x03: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(30, AlignmentTypeEnum.NoAlignment), 30);
+                default: return 0;
+            }
         }
         /// <summary>
         /// Сериализовать значение

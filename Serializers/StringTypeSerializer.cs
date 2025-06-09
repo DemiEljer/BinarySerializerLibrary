@@ -38,11 +38,14 @@ namespace BinarySerializerLibrary.Serializers
         {
             var stringObject = (string)obj;
             // Сериализация длины строки
-            ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, stringObject.Length, builder);
+            int stringLength = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, stringObject.Length, builder);
 
-            foreach (var stringSymbole in stringObject)
+            if (stringLength > 0)
             {
-                builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(stringSymbole, attribute.FieldSize), attribute.Alignment);
+                foreach (var stringSymbole in stringObject)
+                {
+                    builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(stringSymbole, attribute.FieldSize), attribute.Alignment);
+                }
             }
         }
     }

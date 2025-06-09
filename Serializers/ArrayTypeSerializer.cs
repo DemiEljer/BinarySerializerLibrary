@@ -68,7 +68,7 @@ namespace BinarySerializerLibrary.Serializers
                 int arraySize = ((Array)obj).Length;
 
                 // Сериализация размер массива
-                ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, arraySize, builder);
+                arraySize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, arraySize, builder);
 
                 // Сериализация элементов вектора
                 if (arraySize > 0)
