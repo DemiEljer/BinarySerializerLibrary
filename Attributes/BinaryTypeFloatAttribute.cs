@@ -9,18 +9,25 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeFloatAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeFloatAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeFloatAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeFloatAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
+        public BinaryTypeFloatAttribute(NullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(nullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
-            FieldSize = 32;
+        }
+
+        public BinaryTypeFloatAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, alignment, fieldType)
+        {
+        }
+
+        public BinaryTypeFloatAttribute(NullableTypeEnum nullable, AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(32, fieldType, alignment, nullable)
+        {
         }
 
         public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeFloatAttribute(Alignment, fieldType);
+            return new BinaryTypeFloatAttribute(Nullable, Alignment, fieldType);
         }
     }
 }

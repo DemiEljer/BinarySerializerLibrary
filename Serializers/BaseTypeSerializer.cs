@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,6 +9,24 @@ namespace BinarySerializerLibrary.Serializers
 {
     public abstract class BaseTypeSerializer
     {
+        /// <summary>
+        /// Получить тип свойства
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static Type GetPropertyType(PropertyInfo property)
+        {
+            var propertyType = property.PropertyType;
+
+            if (propertyType.IsGenericType)
+            {
+                return propertyType.GetGenericArguments().First();
+            }
+            else
+            {
+                return propertyType;
+            }
+        }
         /// <summary>
         /// Преобразование в двоичный вид
         /// </summary>

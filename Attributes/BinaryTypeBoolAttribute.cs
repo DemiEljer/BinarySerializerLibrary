@@ -9,18 +9,25 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeBoolAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeBoolAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeBoolAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeBoolAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
+        public BinaryTypeBoolAttribute(NullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(nullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
-            FieldSize = 1;
+        }
+
+        public BinaryTypeBoolAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, alignment, fieldType)
+        {
+        }
+
+        public BinaryTypeBoolAttribute(NullableTypeEnum nullable, AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(1, fieldType, alignment, nullable)
+        {
         }
 
         public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeBoolAttribute(Alignment, fieldType);
+            return new BinaryTypeBoolAttribute(Nullable, Alignment, fieldType);
         }
     }
 }

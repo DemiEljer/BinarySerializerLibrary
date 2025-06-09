@@ -1,5 +1,6 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.ObjectSerializationRecipes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace BinarySerializerLibrary.Serializers
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
         {
             // Десераилизация длины строки
-            var stringLength = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
+            var stringLength = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
 
             if (stringLength > 0)
             {
@@ -35,18 +36,9 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            // В случае, если бы передан нулевой объект, то помечаем строку как пустую
-            if (obj is null)
-            {
-                // Сериализация длины строки
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32), attribute.Alignment);
-
-                return;
-            }
-
             var stringObject = (string)obj;
             // Сериализация длины строки
-            builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(stringObject.Length, 32), attribute.Alignment);
+            ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, stringObject.Length, builder);
 
             foreach (var stringSymbole in stringObject)
             {

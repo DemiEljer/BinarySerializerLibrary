@@ -9,18 +9,25 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeCharAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeCharAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeCharAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeCharAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
+        public BinaryTypeCharAttribute(NullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(nullable, AlignmentTypeEnum.NoAlignment, fieldType)
         {
-            FieldSize = 16;
+        }
+
+        public BinaryTypeCharAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(NullableTypeEnum.NotNullable, alignment, fieldType)
+        {
+        }
+
+        public BinaryTypeCharAttribute(NullableTypeEnum nullable, AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(16, fieldType, alignment, nullable)
+        {
         }
 
         public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeCharAttribute(Alignment, fieldType);
+            return new BinaryTypeCharAttribute(Nullable, Alignment, fieldType);
         }
     }
 }

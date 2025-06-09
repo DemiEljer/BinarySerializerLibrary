@@ -12,13 +12,6 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
     {
         private static Dictionary<Type, ObjectSerializationRecipe> _ObjectsRecipes { get; } = new();
 
-        public static bool IsComplexType(BinaryTypeBaseAttribute fieldAttribute)
-        {
-            return fieldAttribute is BinaryTypeObjectAttribute
-                   || fieldAttribute is BinaryTypeStringAttribute
-                   || fieldAttribute.FieldType != BinaryArgumentTypeEnum.Single;
-        }
-
         public static ObjectSerializationRecipe GetRecipe(Type objectType)
         {
             if (!_ObjectsRecipes.ContainsKey(objectType))

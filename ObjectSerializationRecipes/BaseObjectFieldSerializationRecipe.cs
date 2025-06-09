@@ -1,5 +1,6 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,10 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// </summary>
         public BinaryTypeBaseAttribute FieldAttribute { get; }
 
-        public BaseObjectFieldSerializationRecipe(PropertyInfo fieldProperty, BinaryTypeBaseAttribute fieldAttribute)
+        public BaseObjectFieldSerializationRecipe(PropertyInfo fieldProperty, Type fieldType, BinaryTypeBaseAttribute fieldAttribute)
         {
             FieldProperty = fieldProperty;
-            FieldType = FieldProperty.PropertyType;
+            FieldType = fieldType;
             FieldAttribute = fieldAttribute;
         }
 

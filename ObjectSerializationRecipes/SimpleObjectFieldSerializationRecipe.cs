@@ -12,19 +12,23 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public class SimpleObjectFieldSerializationRecipe : BaseObjectFieldSerializationRecipe
     {
-        public SimpleObjectFieldSerializationRecipe(PropertyInfo fieldProperty, BinaryTypeBaseAttribute fieldAttribute) : base(fieldProperty, fieldAttribute)
+        public SimpleObjectFieldSerializationRecipe(PropertyInfo fieldProperty, BinaryTypeBaseAttribute fieldAttribute) : base(fieldProperty, BaseTypeSerializer.GetPropertyType(fieldProperty), fieldAttribute)
         {
 
         }
 
         public override void Deserialization(object deserializingObject, BinaryArrayReader reader)
         {
-            FieldProperty.SetValue(deserializingObject, BaseTypeSerializerMapper.DeserializeValue(FieldType, reader.ReadValue(FieldAttribute.FieldSize, FieldAttribute.Alignment), FieldAttribute.FieldSize));
+            var fieldValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(FieldAttribute, FieldType, reader);
+
+            FieldProperty.SetValue(deserializingObject, fieldValue);
         }
 
         public override void Serialization(object serializingObject, BinaryArrayBuilder builder)
         {
-            builder.AppendBitValue(FieldAttribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(FieldType, FieldProperty.GetValue(serializingObject), FieldAttribute.FieldSize), FieldAttribute.Alignment);
+            var fieldValue = FieldProperty.GetValue(serializingObject);
+
+            ComplexBaseTypeSerializer.SerializeAtomicValue(FieldAttribute, FieldType, fieldValue, builder);
         }
     }
 }

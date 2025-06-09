@@ -13,7 +13,8 @@ namespace BinarySerializerLibrary.Attributes
         {
         }
 
-        public BinaryTypeObjectAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(fieldType, alignment)
+
+        public BinaryTypeObjectAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(0, fieldType, alignment, NullableTypeEnum.Nullable)
         {
         }
 

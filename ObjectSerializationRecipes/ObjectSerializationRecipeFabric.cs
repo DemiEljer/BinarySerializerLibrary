@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Attributes;
+using BinarySerializerLibrary.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                     {
                         var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribut;
 
-                        if (ObjectSerializationRecipesMapper.IsComplexType(binaryFieldAttribute))
+                        if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                         {
                             recipes.Add(new ComplexObjectFieldSerializationRecipe(property, binaryFieldAttribute));
                         }

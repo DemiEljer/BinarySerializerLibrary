@@ -13,44 +13,23 @@ namespace BinarySerializerLibrary.Serializers
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
         {
-            // Десераилизация размера массива
-            var objectExistance = BaseTypeSerializerMapper.DeserializeValue<bool>(reader.ReadValue(1, attribute.Alignment), 1);
+            var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(objType);
 
-            if (objectExistance)
+            var resultObject = Activator.CreateInstance(objType);
+
+            if (resultObject != null)
             {
-                var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(objType);
-
-                var resultObject = Activator.CreateInstance(objType);
-
-                if (resultObject != null)
-                {
-                    objectRecipe.Deserialization(resultObject, reader);
-                }
-
-                return resultObject;
+                objectRecipe.Deserialization(resultObject, reader);
             }
-            else
-            {
-                return null;
-            }
+
+            return resultObject;
         }
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            if (obj is null)
-            {
-                // Сериализация флага присутсвия объекта (существует ли объект)
-                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(false, 1), attribute.Alignment);
-            }
-            else
-            {
-                // Сериализация флага присутсвия объекта (существует ли объект)
-                builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
+            var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());
 
-                var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());
-
-                objectRecipe.Serialization(obj, builder);
-            }
+            objectRecipe.Serialization(obj, builder);
         }
     }
 }

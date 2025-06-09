@@ -3,6 +3,7 @@ using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,24 +15,24 @@ namespace BinarySerializerLibrary.Serializers
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
         {
-            var arrayElementType = objType.GetElementType();
+            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(objType.GetElementType());
             // Получение аттрибута едичного объекта массива
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 
             if (arrayElementType != null)
             {
                 // Десераилизация размера массива
-                var arraySize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
+                var arraySize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
 
                 var arrayObject = Array.CreateInstance(arrayElementType, arraySize);
                 // Десериализация элементов массива 
                 {
                     // Десерализация составных объектов-полей
-                    if (ObjectSerializationRecipesMapper.IsComplexType(attribute))
+                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
                     {
                         foreach (var index in Enumerable.Range(0, arraySize))
                         {
-                            var elementValue = ComplexTypeSerializerMapper.DeserializeObject(attribute, arrayElementType, reader);
+                            var elementValue = ComplexBaseTypeSerializer.DeserializeComplexValue(attribute, arrayElementType, reader);
 
                             ((Array)arrayObject).SetValue(elementValue, index);
                         }
@@ -41,7 +42,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var index in Enumerable.Range(0, arraySize))
                         {
-                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(arrayElementType, reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
+                            var elementValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(attribute, arrayElementType, reader);
 
                             ((Array)arrayObject).SetValue(elementValue, index);
                         }
@@ -58,16 +59,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            // В случае, если бы передан нулевой объект, то помечаем массив как пустой
-            if (obj is null)
-            {
-                // Сериализация размер массива
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32), attribute.Alignment);
-
-                return;
-            }
-
-            var arrayElementType = obj.GetType().GetElementType();
+            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj.GetType().GetElementType());
             // Получение аттрибута едичного объекта массива
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 
@@ -76,17 +68,17 @@ namespace BinarySerializerLibrary.Serializers
                 int arraySize = ((Array)obj).Length;
 
                 // Сериализация размер массива
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(arraySize, 32), attribute.Alignment);
+                ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, arraySize, builder);
 
                 // Сериализация элементов вектора
                 if (arraySize > 0)
                 {
                     // Сериализация в случае, если объект составной
-                    if (ObjectSerializationRecipesMapper.IsComplexType(attribute))
+                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
                     {
                         foreach (var arrayValue in ((Array)obj))
                         {
-                            ComplexTypeSerializerMapper.SerializeObject(attribute, arrayValue, builder);
+                            ComplexBaseTypeSerializer.SerializeComplexValue(attribute, arrayValue, builder);
                         }
                     }
                     // Сериализация в случае, если объект представлен атомарным полем
@@ -94,7 +86,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var arrayValue in ((Array)obj))
                         {
-                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(arrayElementType, arrayValue, attribute.FieldSize), attribute.Alignment);
+                            ComplexBaseTypeSerializer.SerializeAtomicValue(attribute, arrayElementType, arrayValue, builder);
                         }
                     }
                 }

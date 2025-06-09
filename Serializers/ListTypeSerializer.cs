@@ -14,25 +14,25 @@ namespace BinarySerializerLibrary.Serializers
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
         {
-            var listElementType = objType.GetGenericArguments().First();
+            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(objType.GetGenericArguments().First());
             // Получение аттрибута едичного объекта списка
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 
             if (listElementType != null)
             {
                 // Десераилизация размера списка
-                var listSize = BaseTypeSerializerMapper.DeserializeValue<Int32>(reader.ReadValue(32, attribute.Alignment), 32);
+                var listSize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
                 // Создание экземпляра объекта
                 var listObject = Activator.CreateInstance(objType);
 
                 // Десериализация элементов списка 
                 {
                     // Десерализация составных объектов-полей
-                    if (ObjectSerializationRecipesMapper.IsComplexType(attribute))
+                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
                     {
                         foreach (var index in Enumerable.Range(0, listSize))
                         {
-                            var elementValue = ComplexTypeSerializerMapper.DeserializeObject(attribute, listElementType, reader);
+                            var elementValue = ComplexBaseTypeSerializer.DeserializeComplexValue(attribute, listElementType, reader);
 
                             objType.GetMethod("Add")?.Invoke(listObject, new object?[] { elementValue });
                         }
@@ -42,7 +42,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var index in Enumerable.Range(0, listSize))
                         {
-                            var elementValue = BaseTypeSerializerMapper.DeserializeValue(listElementType, reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
+                            var elementValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(attribute, listElementType, reader);
 
                             objType.GetMethod("Add")?.Invoke(listObject, new object?[] { elementValue });
                         }
@@ -59,16 +59,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            // В случае, если бы передан нулевой объект, то помечаем массив как пустой
-            if (obj is null)
-            {
-                // Сериализация размер списка
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(0, 32), attribute.Alignment);
-
-                return;
-            }
-
-            var listElementType = obj.GetType().GetGenericArguments().First();
+            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj.GetType().GetGenericArguments().First());
             // Получение аттрибута едичного объекта списка
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 
@@ -77,25 +68,28 @@ namespace BinarySerializerLibrary.Serializers
                 int listSize = ((IList)obj).Count;
 
                 // Сериализация размер списка
-                builder.AppendBitValue(32, BaseTypeSerializerMapper.SerializeValue<Int32>(listSize, 32), attribute.Alignment);
+                ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, listSize, builder);
 
                 // Сериализация элементов списка
                 if (listSize > 0)
                 {
                     // Сериализация в случае, если объект составной
-                    if (ObjectSerializationRecipesMapper.IsComplexType(attribute))
+                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
                     {
-                        foreach (var arrayValue in ((IList)obj))
+                        foreach (var listValue in ((IList)obj))
                         {
-                            ComplexTypeSerializerMapper.SerializeObject(attribute, arrayValue, builder);
+                            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, listValue, builder, () =>
+                            {
+                                ComplexTypeSerializerMapper.SerializeObject(attribute, listValue, builder);
+                            });
                         }
                     }
                     // Сериализация в случае, если объект представлен атомарным полем
                     else
                     {
-                        foreach (var arrayValue in ((IList)obj))
+                        foreach (var listValue in ((IList)obj))
                         {
-                            builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(listElementType, arrayValue, attribute.FieldSize), attribute.Alignment);
+                            ComplexBaseTypeSerializer.SerializeAtomicValue(attribute, listElementType, listValue, builder);
                         }
                     }
                 }
