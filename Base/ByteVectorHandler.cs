@@ -172,38 +172,31 @@ namespace BinarySerializerLibrary.Base
             // Смещение выходного значения
             int shift = bitPosition % 8;
 
-            try
-            {
-                UInt64 result = 0;
+            UInt64 result = 0;
 
-                if (bitSize > (8 - shift))
+            if (bitSize > (8 - shift))
+            {
+                // Текущий индекс байта
+                int currentBytePosition = bitPosition / 8;
+                // Текущий индекс бита
+                int currentBitPosition = 8 - shift;
+                // Инициализируем первые биты
+                result |= (UInt64)data[currentBytePosition] >> shift;
+                currentBytePosition += 1;
+
+                while (currentBitPosition < bitSize)
                 {
-                    // Текущий индекс байта
-                    int currentBytePosition = bitPosition / 8;
-                    // Текущий индекс бита
-                    int currentBitPosition = 8 - shift;
-                    // Инициализируем первые биты
-                    result |= (UInt64)data[currentBytePosition] >> shift;
+                    result |= (UInt64)data[currentBytePosition] << currentBitPosition;
+                    currentBitPosition += 8;
                     currentBytePosition += 1;
-
-                    while (currentBitPosition < bitSize)
-                    {
-                        result |= (UInt64)data[currentBytePosition] << currentBitPosition;
-                        currentBitPosition += 8;
-                        currentBytePosition += 1;
-                    }
                 }
-                else
-                {
-                    result |= (UInt64)data[bitPosition / 8] >> shift;
-                }
-
-                return result & GetMask(bitSize);
             }
-            catch
+            else
             {
-                return 0;
+                result |= (UInt64)data[bitPosition / 8] >> shift;
             }
+
+            return result & GetMask(bitSize);
         }
         /// <summary>
         /// Установить значение параметра в вектор данных

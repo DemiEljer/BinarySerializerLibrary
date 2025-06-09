@@ -133,14 +133,7 @@ namespace BinarySerializerLibrary.Base
                 }
             };
 
-            try
-            {
-                _SetElementsFromEnumeration(handler(_GetElementsEnumeration()));
-            }
-            catch
-            {
-
-            }
+            _SetElementsFromEnumeration(handler(_GetElementsEnumeration()));
         }
         /// <summary>
         /// Сдвиг по вектору

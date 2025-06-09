@@ -59,7 +59,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj.GetType().GetGenericArguments().First());
+            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj?.GetType().GetGenericArguments().First());
             // Получение аттрибута едичного объекта списка
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 

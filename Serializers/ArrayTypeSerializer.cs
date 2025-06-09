@@ -24,7 +24,7 @@ namespace BinarySerializerLibrary.Serializers
                 // Десераилизация размера массива
                 var arraySize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
 
-                var arrayObject = Array.CreateInstance(arrayElementType, arraySize);
+                var arrayObject = Array.CreateInstance(objType.GetElementType(), arraySize);
                 // Десериализация элементов массива 
                 {
                     // Десерализация составных объектов-полей
@@ -59,7 +59,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
         {
-            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj.GetType().GetElementType());
+            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj?.GetType().GetElementType());
             // Получение аттрибута едичного объекта массива
             attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
 
