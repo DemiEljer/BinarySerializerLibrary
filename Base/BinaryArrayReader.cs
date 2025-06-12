@@ -25,6 +25,10 @@ namespace BinarySerializerLibrary.Base
         /// Количество байт
         /// </summary>
         public int ByteCount => ByteArray == null ? 0 : ByteArray.Length;
+        /// <summary>
+        /// Флаг, что достигнут конец файла
+        /// </summary>
+        public bool IsEndOfArray => BitLength <= BitIndex;
 
         public BinaryArrayReader() { }
 
@@ -57,8 +61,29 @@ namespace BinarySerializerLibrary.Base
         {
             if (ByteArray is null)
             {
-                return 0;
+                throw new ArgumentNullException(nameof(ByteArray));
             }
+
+            if (IsEndOfArray)
+            {
+                throw new ArgumentException("Достигнут конец бинарного массива");
+            }
+
+            // Применение выравнивания
+            MakeAlignment(alignment);
+
+            // Вычленение значения из вектора байт
+            var resultValue = ByteVectorHandler.GetVectorParamValue(ByteArray, bitSize, BitIndex);
+            // Инкрементирование индекса в векторе байтов
+            BitIndex = Math.Clamp(BitIndex + bitSize, 0, BitLength);
+
+            return resultValue;
+        }
+        /// <summary>
+        /// Сделать байтовое выравнивание
+        /// </summary>
+        public void MakeAlignment(AlignmentTypeEnum alignment)
+        {
             // Применение выравнивания
             switch (alignment)
             {
@@ -67,13 +92,6 @@ namespace BinarySerializerLibrary.Base
                     break;
                 default: break;
             }
-
-            // Вычленение значения из вектора байт
-            var resultValue = ByteVectorHandler.GetVectorParamValue(ByteArray, bitSize, BitIndex);
-            // Инкрементирование индекса в векторе байтов
-            BitIndex = Math.Clamp(BitIndex + bitSize, 0, BitLength);
-
-            return resultValue;
         }
     }
 }

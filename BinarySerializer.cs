@@ -31,6 +31,19 @@ namespace BinarySerializerLibrary
         {
             var binaryReader = new BinaryArrayReader(content);
 
+            return Deserialize<TObject>(binaryReader, exceptionCallback);
+        }
+
+        public static TObject? Deserialize<TObject>(BinaryArrayReader binaryReader, Action<Exception>? exceptionCallback = null)
+            where TObject : class
+        {
+            if (binaryReader is null)
+            {
+                exceptionCallback?.Invoke(new ArgumentNullException(nameof(binaryReader)));
+
+                return null;
+            }
+
             try
             {
                 return ComplexTypeSerializerMapper.DeserializeObject<TObject>(new BinaryTypeObjectAttribute(), typeof(TObject), binaryReader);
