@@ -9,19 +9,19 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeUIntAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeUIntAttribute(int size, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, NullableTypeEnum.NotNullable, AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, NullableTypeEnum.NotNullable, BinaryAlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, NullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, nullable, AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, NullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, nullable, BinaryAlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, NullableTypeEnum.NotNullable, alignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, NullableTypeEnum.NotNullable, alignment, fieldType)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, NullableTypeEnum nullable, AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(Math.Clamp(size, 0, 64), fieldType, alignment, nullable)
+        public BinaryTypeUIntAttribute(int size, NullableTypeEnum nullable, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(Math.Clamp(size, 0, 64), fieldType, alignment, nullable)
         {
         }
 

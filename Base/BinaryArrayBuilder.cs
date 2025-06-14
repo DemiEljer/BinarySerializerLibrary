@@ -48,14 +48,14 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Записать битовое поле
         /// </summary>
-        public void AppendBitValue(int bitsCount, UInt64 value, AlignmentTypeEnum alignment)
+        public void AppendBitValue(int bitsCount, UInt64 value, BinaryAlignmentTypeEnum alignment)
         {
             // Применение логики выравнивания
             int alignmentOffset = 0;
             // Выбор типа выравнивания
             switch (alignment)
             {
-                case AlignmentTypeEnum.ByteAlignment:
+                case BinaryAlignmentTypeEnum.ByteAlignment:
                     alignmentOffset = (CurrentBitIndex % 8) == 0 ? 0 : 8 - (CurrentBitIndex % 8);
                     break;
                 default: break;

@@ -9,11 +9,11 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeStringAttribute : BinaryTypeCharAttribute
     {
-        public BinaryTypeStringAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeStringAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(BinaryAlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
-        public BinaryTypeStringAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(NullableTypeEnum.Nullable, alignment, fieldType)
+        public BinaryTypeStringAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(NullableTypeEnum.Nullable, alignment, fieldType)
         {
         }
 

@@ -57,7 +57,7 @@ namespace BinarySerializerLibrary.Base
         /// </summary>
         /// <param name="bitSize"></param>
         /// <returns></returns>
-        public UInt64 ReadValue(int bitSize, AlignmentTypeEnum alignment)
+        public UInt64 ReadValue(int bitSize, BinaryAlignmentTypeEnum alignment)
         {
             if (ByteArray is null)
             {
@@ -82,12 +82,12 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Сделать байтовое выравнивание
         /// </summary>
-        public void MakeAlignment(AlignmentTypeEnum alignment)
+        public void MakeAlignment(BinaryAlignmentTypeEnum alignment)
         {
             // Применение выравнивания
             switch (alignment)
             {
-                case AlignmentTypeEnum.ByteAlignment:
+                case BinaryAlignmentTypeEnum.ByteAlignment:
                     BitIndex = (BitIndex % 8) == 0 ? BitIndex : ((BitIndex / 8) + 1) * 8;
                     break;
                 default: break;

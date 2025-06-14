@@ -20,13 +20,13 @@ namespace BinarySerializerLibrary.Attributes
         /// <summary>
         /// Выравнивание поля
         /// </summary>
-        public AlignmentTypeEnum Alignment { get; }
+        public BinaryAlignmentTypeEnum Alignment { get; }
         /// <summary>
         /// Обработка возможности преобразования значения в null
         /// </summary>
         public NullableTypeEnum Nullable { get; }
 
-        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum fieldType, AlignmentTypeEnum alignment, NullableTypeEnum nullable)
+        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum fieldType, BinaryAlignmentTypeEnum alignment, NullableTypeEnum nullable)
         {
             FieldSize = fieldSize;
             FieldType = fieldType;

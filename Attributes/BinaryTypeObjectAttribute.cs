@@ -9,12 +9,12 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeObjectAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(AlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(BinaryAlignmentTypeEnum.NoAlignment, fieldType)
         {
         }
 
 
-        public BinaryTypeObjectAttribute(AlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(0, fieldType, alignment, NullableTypeEnum.Nullable)
+        public BinaryTypeObjectAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(0, fieldType, alignment, NullableTypeEnum.Nullable)
         {
         }
 
