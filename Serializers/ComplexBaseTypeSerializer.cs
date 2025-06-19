@@ -21,7 +21,7 @@ namespace BinarySerializerLibrary.Serializers
         {
             return fieldAttribute is BinaryTypeObjectAttribute
                    || fieldAttribute is BinaryTypeStringAttribute
-                   || fieldAttribute.FieldType != BinaryArgumentTypeEnum.Single;
+                   || fieldAttribute.Type != BinaryArgumentTypeEnum.Single;
         }
         /// <summary>
         /// Сериализовать размер коллекции

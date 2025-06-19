@@ -10,27 +10,34 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public static class ObjectSerializationRecipeFabric
     {
-        public static ObjectSerializationRecipe CreateRecipe(Type objectType)
+        public static ObjectSerializationRecipe? CreateRecipe(Type objectType)
         {
             List<BaseObjectPropertySerializationRecipe> recipes = new();
-            // ����� ������������� ������ ����� �������
+            // Поиск свойств для сериализации
             foreach (var property in objectType.GetProperties())
             {
                 var propertyAttributes = property.GetCustomAttributes(true);
-                // ����� ��������� �������� ������������
-                foreach (var propertyAttribut in propertyAttributes)
+                // Поиск атрибута сериализации свойства
+                foreach (var propertyAttribute in propertyAttributes)
                 {
-                    if (propertyAttribut is BinaryTypeBaseAttribute)
+                    if (propertyAttribute is BinaryTypeBaseAttribute)
                     {
-                        var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribut;
+                        var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribute;
 
-                        if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
+                        if (ObjectPropertyTypeVerificationHandler.VerifyProperty(property.PropertyType, binaryFieldAttribute))
                         {
-                            recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
+                            {
+                                recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            }
+                            else
+                            {
+                                recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            }
                         }
                         else
                         {
-                            recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            return null;
                         }
                     }
                 }

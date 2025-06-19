@@ -16,7 +16,7 @@ namespace BinarySerializerLibrary.Attributes
         /// <summary>
         /// ��� ����
         /// </summary>
-        public BinaryArgumentTypeEnum FieldType { get; }
+        public BinaryArgumentTypeEnum Type { get; }
         /// <summary>
         /// ������������ ����
         /// </summary>
@@ -26,14 +26,14 @@ namespace BinarySerializerLibrary.Attributes
         /// </summary>
         public BinaryNullableTypeEnum Nullable { get; }
 
-        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum fieldType, BinaryAlignmentTypeEnum alignment, BinaryNullableTypeEnum nullable)
+        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum type, BinaryAlignmentTypeEnum alignment, BinaryNullableTypeEnum nullable)
         {
             FieldSize = fieldSize;
-            FieldType = fieldType;
+            Type = type;
             Alignment = alignment;
             Nullable = nullable;
         }
 
-        public abstract BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single);
+        public abstract BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single);
     }
 }

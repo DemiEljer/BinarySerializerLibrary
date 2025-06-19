@@ -41,7 +41,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public static ComplexBaseTypeSerializer? GetSerializer(BinaryTypeBaseAttribute fieldAttribute)
         {
-            var serializerKey = (fieldAttribute.GetType(), fieldAttribute.FieldType);
+            var serializerKey = (fieldAttribute.GetType(), fieldAttribute.Type);
 
             if (_Serializers.ContainsKey(serializerKey))
             {

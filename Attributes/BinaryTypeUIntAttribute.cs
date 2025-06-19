@@ -9,25 +9,25 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeUIntAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeUIntAttribute(int size, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, BinaryNullableTypeEnum.NotNullable, BinaryAlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : this(size, BinaryNullableTypeEnum.NotNullable, BinaryAlignmentTypeEnum.NoAlignment, type)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, nullable, BinaryAlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : this(size, nullable, BinaryAlignmentTypeEnum.NoAlignment, type)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(size, BinaryNullableTypeEnum.NotNullable, alignment, fieldType)
+        public BinaryTypeUIntAttribute(int size, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : this(size, BinaryNullableTypeEnum.NotNullable, alignment, type)
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(Math.Clamp(size, 0, 64), fieldType, alignment, nullable)
+        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : base(Math.Clamp(size, 0, 64), type, alignment, nullable)
         {
         }
 
-        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
+        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeUIntAttribute(FieldSize, Nullable, Alignment, fieldType);
+            return new BinaryTypeUIntAttribute(FieldSize, Nullable, Alignment, type);
         }
     }
 }

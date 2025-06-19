@@ -9,18 +9,18 @@ namespace BinarySerializerLibrary.Attributes
 {
     public class BinaryTypeObjectAttribute : BinaryTypeBaseAttribute
     {
-        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : this(BinaryAlignmentTypeEnum.NoAlignment, fieldType)
+        public BinaryTypeObjectAttribute(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : this(BinaryAlignmentTypeEnum.NoAlignment, type)
         {
         }
 
 
-        public BinaryTypeObjectAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(0, fieldType, alignment, BinaryNullableTypeEnum.Nullable)
+        public BinaryTypeObjectAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : base(0, type, alignment, BinaryNullableTypeEnum.Nullable)
         {
         }
 
-        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single)
+        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single)
         {
-            return new BinaryTypeObjectAttribute(Alignment, fieldType);
+            return new BinaryTypeObjectAttribute(Alignment, type);
         }
     }
 }
