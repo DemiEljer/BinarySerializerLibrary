@@ -42,9 +42,9 @@ CANMessagesCollection originCollection = new();
 // ...........................
 // ...........................
 // Получение сериализованного массива байт
-var binaryData = BinarySerializer.Serialize(obj1, (e) => Console.WriteLine(e.Message));
+var binaryData = BinarySerializer.SerializeExceptionShielding(obj1, (e) => Console.WriteLine(e.Message));
 // Получение объекта из сериализованного массива байт
-var unpackedCollection = BinarySerializer.Deserialize<CANMessagesCollection>(binaryData, (e) => Console.WriteLine(e.Message));
+var unpackedCollection = BinarySerializer.DeserializeExceptionShielding<CANMessagesCollection>(binaryData, (e) => Console.WriteLine(e.Message));
 
 ```
 
