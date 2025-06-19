@@ -65,22 +65,22 @@ var unpackedCollection = BinarySerializer.Deserialize<CANMessagesCollection>(bin
 
 > **Примечание.** Атрибуты **BinaryTypeIntAttribute** и **BinaryTypeUIntAttribute** позволяют управлять размером сериализуемого значения, что позволяет экономить место при получении двоичного представления в случаях, если не весь диапазон значений оригинального типа задействуется.
 
-При добавлении атрибутов (в конструкторах) можно указать выравнивание сериализуемых свойств с помощью перечисления **AlignmentTypeEnum**.
+При добавлении атрибутов (в конструкторах) можно указать выравнивание сериализуемых свойств с помощью перечисления **BinaryAlignmentTypeEnum**.
 
 |Аргумент атрибута|Описание|
 |------------|--------|
-|AlignmentTypeEnum.NoAlignment|Значение свойства обрабатывается без выравнивания|
-|AlignmentTypeEnum.ByteAlignment|Значение свойства обрабатывается с выравниванием по байтам|
+|BinaryAlignmentTypeEnum.NoAlignment|Значение свойства обрабатывается без выравнивания|
+|BinaryAlignmentTypeEnum.ByteAlignment|Значение свойства обрабатывается с выравниванием по байтам|
 
 
 > **Примечание.** По умолчанию все свойства обрабатываются без выравнивания.
 
-Для корректной обработки Nullable-типов необходимо сделать соответствующие пометки в конструкторах атрибутов свойств с помощью перечисления **NullableTypeEnum**.
+Для корректной обработки Nullable-типов необходимо сделать соответствующие пометки в конструкторах атрибутов свойств с помощью перечисления **BinaryNullableTypeEnum**.
 
 |Аргумент атрибута|Описание|
 |------------|--------|
-|NullableTypeEnum.NotNullable|Значение свойства не может быть null|
-|NullableTypeEnum.Nullable|Значение свойства может быть null|
+|BinaryNullableTypeEnum.NotNullable|Значение свойства не может быть null|
+|BinaryNullableTypeEnum.Nullable|Значение свойства может быть null|
 
 > **Примечание.** По умолчанию свойства **BinaryTypeObjectAttribute**, **BinaryTypeStringAttribute**, **BinaryArgumentTypeEnum.Array**, **BinaryArgumentTypeEnum.List** всегда обрабатываются как **Nullable**, а все остальные - как **NotNullable**.
 
