@@ -4,96 +4,57 @@ using BinarySerializerLibrary.ObjectSerializationRecipes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.Serializers
 {
-    public class ListTypeSerializer : ComplexBaseTypeSerializer
+    public class ListTypeSerializer : CollectionBaseTypeSerializer
     {
-        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        /// <summary>
+        /// Получить тип элемента коллекции
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected override Type? _GetCollectionElementType(Type type) => type?.GetGenericArguments().First();
+        /// <summary>
+        /// Получить размер коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override int _GetCollectionSize(object obj) => ((IList)obj).Count;
+        /// <summary>
+        /// Получить перечисление элементов коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override IEnumerable<object?> _GetCollectionElements(object obj)
         {
-            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(objType.GetGenericArguments().First());
-            // Получение аттрибута едичного объекта списка
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
-
-            if (listElementType != null)
+            foreach (var listValue in ((IList)obj))
             {
-                // Десераилизация размера списка
-                var listSize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
-                // Создание экземпляра объекта
-                var listObject = Activator.CreateInstance(objType);
-
-                // Десериализация элементов списка 
-                {
-                    // Десерализация составных объектов-полей
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
-                    {
-                        foreach (var index in Enumerable.Range(0, listSize))
-                        {
-                            var elementValue = ComplexBaseTypeSerializer.DeserializeComplexValue(attribute, listElementType, reader);
-
-                            objType.GetMethod("Add")?.Invoke(listObject, new object?[] { elementValue });
-                        }
-                    }
-                    // Десерализация атомарных объектов-полей
-                    else
-                    {
-                        foreach (var index in Enumerable.Range(0, listSize))
-                        {
-                            var elementValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(attribute, listElementType, reader);
-
-                            objType.GetMethod("Add")?.Invoke(listObject, new object?[] { elementValue });
-                        }
-                    }
-                }
-
-                return listObject;
-            }
-            else
-            {
-                return null;
+                yield return listValue;
             }
         }
-
-        public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
+        /// <summary>
+        /// Создать экзепляр объекта коллекции
+        /// </summary>
+        /// <param name="collectionType"></param>
+        /// <param name="elementType"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        protected override object? _CreateObjectInstance(Type collectionType, Type elementType, int collectionSize) 
+            => Activator.CreateInstance(collectionType);
+        /// <summary>
+        /// Установить значение элемента коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
+        /// <param name="index"></param>
+        protected override void _SetCollectionElement(object obj, Type objectType, object? elementValue, int elementIndex)
         {
-            var listElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj?.GetType().GetGenericArguments().First());
-            // Получение аттрибута едичного объекта списка
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
-
-            if (listElementType != null)
-            {
-                int listSize = ((IList)obj).Count;
-
-                // Сериализация размер списка
-                listSize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, listSize, builder);
-
-                // Сериализация элементов списка
-                if (listSize > 0)
-                {
-                    // Сериализация в случае, если объект составной
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
-                    {
-                        foreach (var listValue in ((IList)obj))
-                        {
-                            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, listValue, builder, () =>
-                            {
-                                ComplexTypeSerializerMapper.SerializeObject(attribute, listValue, builder);
-                            });
-                        }
-                    }
-                    // Сериализация в случае, если объект представлен атомарным полем
-                    else
-                    {
-                        foreach (var listValue in ((IList)obj))
-                        {
-                            ComplexBaseTypeSerializer.SerializeAtomicValue(attribute, listElementType, listValue, builder);
-                        }
-                    }
-                }
-            }
+            objectType.GetMethod("Add")?.Invoke(obj, new object?[] { elementValue });
         }
     }
 }

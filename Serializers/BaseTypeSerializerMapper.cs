@@ -59,15 +59,16 @@ namespace BinarySerializerLibrary.Serializers
         }
 
         public static UInt64 SerializeValue<TValue>(TValue value, int size)
+            where TValue : struct
         {
             return SerializeValue(typeof(TValue), value, size);
         }
 
-        public static UInt64 SerializeValue(Type valueType, object? value, int size)
+        public static UInt64 SerializeValue(Type valueType, object value, int size)
         {
             var serializer = GetSerializer(valueType);
 
-            if (serializer != null)
+            if (serializer is not null)
             {
                 return serializer.GetBinaryValue(valueType, value, size);
             }

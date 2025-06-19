@@ -11,86 +11,50 @@ using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.Serializers
 {
-    public class ArrayTypeSerializer : ComplexBaseTypeSerializer
+    public class ArrayTypeSerializer : CollectionBaseTypeSerializer
     {
-        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        /// <summary>
+        /// Получить тип элемента коллекции
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected override Type? _GetCollectionElementType(Type type) => type?.GetElementType();
+        /// <summary>
+        /// Получить размер коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override int _GetCollectionSize(object obj) => ((Array)obj).Length;
+        /// <summary>
+        /// Получить перечисление элементов коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override IEnumerable<object?> _GetCollectionElements(object obj)
         {
-            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(objType.GetElementType());
-            // Получение аттрибута едичного объекта массива
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
-
-            if (arrayElementType != null)
+            foreach (var arrayValue in ((Array)obj))
             {
-                // Десераилизация размера массива
-                var arraySize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
-
-                var arrayObject = Array.CreateInstance(objType.GetElementType(), arraySize);
-                // Десериализация элементов массива 
-                {
-                    // Десерализация составных объектов-полей
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
-                    {
-                        foreach (var index in Enumerable.Range(0, arraySize))
-                        {
-                            var elementValue = ComplexBaseTypeSerializer.DeserializeComplexValue(attribute, arrayElementType, reader);
-
-                            ((Array)arrayObject).SetValue(elementValue, index);
-                        }
-                    }
-                    // Десерализация атомарных объектов-полей
-                    else
-                    {
-                        foreach (var index in Enumerable.Range(0, arraySize))
-                        {
-                            var elementValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(attribute, arrayElementType, reader);
-
-                            ((Array)arrayObject).SetValue(elementValue, index);
-                        }
-                    }
-                }
-
-                return arrayObject;
-            }
-            else
-            {
-                return null;
+                yield return arrayValue;
             }
         }
-
-        public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
+        /// <summary>
+        /// Создать экзепляр объекта коллекции
+        /// </summary>
+        /// <param name="collectionType"></param>
+        /// <param name="elementType"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        protected override object? _CreateObjectInstance(Type collectionType, Type elementType, int collectionSize)
+            => Array.CreateInstance(elementType, collectionSize);
+        /// <summary>
+        /// Установить значение элемента коллекции
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
+        /// <param name="index"></param>
+        protected override void _SetCollectionElement(object obj, Type objectType, object? elementValue, int elementIndex)
         {
-            var arrayElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(obj?.GetType().GetElementType());
-            // Получение аттрибута едичного объекта массива
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
-
-            if (arrayElementType != null)
-            {
-                int arraySize = ((Array)obj).Length;
-
-                // Сериализация размер массива
-                arraySize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, arraySize, builder);
-
-                // Сериализация элементов вектора
-                if (arraySize > 0)
-                {
-                    // Сериализация в случае, если объект составной
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
-                    {
-                        foreach (var arrayValue in ((Array)obj))
-                        {
-                            ComplexBaseTypeSerializer.SerializeComplexValue(attribute, arrayValue, builder);
-                        }
-                    }
-                    // Сериализация в случае, если объект представлен атомарным полем
-                    else
-                    {
-                        foreach (var arrayValue in ((Array)obj))
-                        {
-                            ComplexBaseTypeSerializer.SerializeAtomicValue(attribute, arrayElementType, arrayValue, builder);
-                        }
-                    }
-                }
-            }
+            ((Array)obj).SetValue(elementValue, elementIndex);
         }
     }
 }

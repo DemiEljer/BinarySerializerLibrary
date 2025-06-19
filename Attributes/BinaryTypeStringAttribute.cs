@@ -13,7 +13,7 @@ namespace BinarySerializerLibrary.Attributes
         {
         }
 
-        public BinaryTypeStringAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(NullableTypeEnum.Nullable, alignment, fieldType)
+        public BinaryTypeStringAttribute(BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum fieldType = BinaryArgumentTypeEnum.Single) : base(BinaryNullableTypeEnum.Nullable, alignment, fieldType)
         {
         }
 

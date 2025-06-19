@@ -9,7 +9,7 @@ namespace BinarySerializerLibrary.Enums
     /// <summary>
     /// Тип выравнивания
     /// </summary>
-    public enum AlignmentTypeEnum
+    public enum BinaryAlignmentTypeEnum
     {
         /// <summary>
         /// Без выравнивания

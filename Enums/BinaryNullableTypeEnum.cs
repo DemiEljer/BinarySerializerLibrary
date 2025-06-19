@@ -9,7 +9,7 @@ namespace BinarySerializerLibrary.Enums
     /// <summary>
     /// Тип конвертации в null
     /// </summary>
-    public enum NullableTypeEnum
+    public enum BinaryNullableTypeEnum
     {
         /// <summary>
         /// Не может быть null

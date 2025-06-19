@@ -50,32 +50,14 @@ namespace BinarySerializerLibrary.Base
         /// </summary>
         public void AppendBitValue(int bitsCount, UInt64 value, BinaryAlignmentTypeEnum alignment)
         {
-            // Применение логики выравнивания
-            int alignmentOffset = 0;
-            // Выбор типа выравнивания
-            switch (alignment)
-            {
-                case BinaryAlignmentTypeEnum.ByteAlignment:
-                    alignmentOffset = (CurrentBitIndex % 8) == 0 ? 0 : 8 - (CurrentBitIndex % 8);
-                    break;
-                default: break;
-            }
+            // Применение выравнивания
+            MakeAlignment(alignment);
 
             // Вызов логики дополнения вектора байт
             {
-                AppendBits(bitsCount + alignmentOffset);
-                // В случае, если осуществляется выравнивание, производим сдвиг в векторе байт
-                if (alignmentOffset != 0)
-                {
-                    // Количество байт сдвига (гарантированно на 1 байт)
-                    int alignmentByteShifting = alignmentOffset / 8 + 1;
-
-                    _ByteList.Shift(alignmentByteShifting);
-                }
+                AppendBits(bitsCount);
             }
 
-            // Сдвиг индекса битов при выравнивании
-            CurrentBitIndex += alignmentOffset;
             // Количества задействованных байт
             int takingBytesCount = _GetTakenBytesCount(bitsCount);
 
@@ -114,6 +96,22 @@ namespace BinarySerializerLibrary.Base
             }
         }
         /// <summary>
+        /// Добавить содержимое другого объекта построения байтового массива и сдвинуться в конец
+        /// </summary>
+        public void AppenBuilderAndShiftToEnd(BinaryArrayBuilder builder)
+        {
+            if (builder is null
+                || builder._ByteList.Count == 0)
+            {
+                return;
+            }
+
+            _ByteList.AppendElements(builder._ByteList.Elements);
+
+            _ByteList.ShiftToEnd();
+            CurrentBitIndex = RealBitLength;
+        }
+        /// <summary>
         /// Расчет количества задействованных байт
         /// </summary>
         /// <returns></returns>
@@ -135,6 +133,35 @@ namespace BinarySerializerLibrary.Base
             int lastPart = ((bitsCount - byteShift) % 8) > 0 ? 1 : 0;
 
             return firstPart + middlePart + lastPart;
+        }
+        /// <summary>
+        /// Сделать байтовое выравнивание
+        /// </summary>
+        public void MakeAlignment(BinaryAlignmentTypeEnum alignment)
+        {
+            int alignmentOffset = 0;
+            // Выбор типа выравнивания
+            switch (alignment)
+            {
+                case BinaryAlignmentTypeEnum.ByteAlignment:
+                    alignmentOffset = (CurrentBitIndex % 8) == 0 ? 0 : 8 - (CurrentBitIndex % 8);
+                    break;
+                default: break;
+            }
+
+            if (alignmentOffset > 0)
+            {
+                // Добавление недостающего вектора данных
+                AppendBits(alignmentOffset);
+
+                // Количество байт сдвига (гарантированно на 1 байт)
+                int alignmentByteShifting = alignmentOffset / 8 + 1;
+                // Сдвиг в векторе данных
+                _ByteList.Shift(alignmentByteShifting);
+
+                // Сдвиг индекса битов
+                CurrentBitIndex += alignmentOffset;
+            }
         }
 
         public void Clear()

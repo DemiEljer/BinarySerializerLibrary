@@ -86,9 +86,9 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static void SerializeComplexValue(BinaryTypeBaseAttribute attribute, object? value, BinaryArrayBuilder builder)
         {
-            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, () =>
+            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value) =>
             {
-                ComplexTypeSerializerMapper.SerializeObject(attribute, value, builder);
+                ComplexTypeSerializerMapper.SerializeObject(attribute, _value, builder);
             });
         }
         /// <summary>
@@ -112,9 +112,9 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static void SerializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, object? value, BinaryArrayBuilder builder)
         {
-            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, () =>
+            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value) =>
             {
-                builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(valueType, value, attribute.FieldSize), attribute.Alignment);
+                builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(valueType, _value, attribute.FieldSize), attribute.Alignment);
             });
         }
         /// <summary>
@@ -134,7 +134,7 @@ namespace BinarySerializerLibrary.Serializers
         /// Проверить, что объект необходимо сериализовать
         /// </summary>
         /// <returns></returns>
-        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder, Action objectSerializationHandler)
+        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder, Action<object> objectSerializationHandler)
         {
             if (attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable
                 || IsComplexType(attribute))
@@ -147,12 +147,16 @@ namespace BinarySerializerLibrary.Serializers
                 {
                     builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
 
-                    objectSerializationHandler.Invoke();
+                    objectSerializationHandler.Invoke(obj);
                 }
             }
             else
             {
-                objectSerializationHandler.Invoke();
+                if (obj is null)
+                {
+                    throw new ArgumentNullException("Сериализуемый объект имеет значение null, а не должен");
+                }
+                objectSerializationHandler.Invoke(obj);
             }
         }
         /// <summary>
@@ -206,7 +210,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="obj"></param>
         /// <param name="builder"></param>
-        public abstract void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder);
+        public abstract void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder);
         /// <summary>
         /// Десериализовать объект
         /// </summary>

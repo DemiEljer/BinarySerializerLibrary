@@ -18,15 +18,15 @@ namespace BinarySerializerLibrary.Serializers
 
             if (stringLength > 0)
             {
-                IEnumerable<char> _GetStringSymboles()
+                IEnumerable<char> _GetStringSymbols()
                 {
-                    foreach (var symboleIndex in Enumerable.Range(0, stringLength))
+                    foreach (var symbolIndex in Enumerable.Range(0, stringLength))
                     {
                         yield return BaseTypeSerializerMapper.DeserializeValue<char>(reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
                     }
                 }
 
-                return new string(_GetStringSymboles().ToArray());
+                return new string(_GetStringSymbols().ToArray());
             }
             else
             {
@@ -34,7 +34,7 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public override void Serialize(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
+        public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
         {
             var stringObject = (string)obj;
             // Сериализация длины строки
@@ -42,9 +42,9 @@ namespace BinarySerializerLibrary.Serializers
 
             if (stringLength > 0)
             {
-                foreach (var stringSymbole in stringObject)
+                foreach (var stringSymbol in stringObject)
                 {
-                    builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(stringSymbole, attribute.FieldSize), attribute.Alignment);
+                    builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(stringSymbol, attribute.FieldSize), attribute.Alignment);
                 }
             }
         }

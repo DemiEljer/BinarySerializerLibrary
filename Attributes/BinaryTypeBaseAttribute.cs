@@ -10,23 +10,23 @@ namespace BinarySerializerLibrary.Attributes
     public abstract class BinaryTypeBaseAttribute : Attribute
     {
         /// <summary>
-        /// Размер поля
+        /// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         /// </summary>
         public int FieldSize { get; } = 0;
         /// <summary>
-        /// Тип поля
+        /// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         /// </summary>
         public BinaryArgumentTypeEnum FieldType { get; }
         /// <summary>
-        /// Выравнивание поля
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         /// </summary>
         public BinaryAlignmentTypeEnum Alignment { get; }
         /// <summary>
-        /// Обработка возможности преобразования значения в null
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ null
         /// </summary>
-        public NullableTypeEnum Nullable { get; }
+        public BinaryNullableTypeEnum Nullable { get; }
 
-        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum fieldType, BinaryAlignmentTypeEnum alignment, NullableTypeEnum nullable)
+        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum fieldType, BinaryAlignmentTypeEnum alignment, BinaryNullableTypeEnum nullable)
         {
             FieldSize = fieldSize;
             FieldType = fieldType;

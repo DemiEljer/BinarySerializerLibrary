@@ -64,18 +64,20 @@ namespace BinarySerializerLibrary.Base
                 throw new ArgumentNullException(nameof(ByteArray));
             }
 
-            if (IsEndOfArray)
-            {
-                throw new ArgumentException("Достигнут конец бинарного массива");
-            }
-
             // Применение выравнивания
             MakeAlignment(alignment);
+
+            int nextBitIndex = BitIndex + bitSize;
+            // Проверка на достижение конца массива
+            if (IsEndOfArray || nextBitIndex > BitLength)
+            {
+                throw new ArgumentOutOfRangeException("Достигнут конец бинарного массива");
+            }
 
             // Вычленение значения из вектора байт
             var resultValue = ByteVectorHandler.GetVectorParamValue(ByteArray, bitSize, BitIndex);
             // Инкрементирование индекса в векторе байтов
-            BitIndex = Math.Clamp(BitIndex + bitSize, 0, BitLength);
+            BitIndex = Math.Clamp(nextBitIndex, 0, BitLength);
 
             return resultValue;
         }

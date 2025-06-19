@@ -117,7 +117,7 @@ namespace BinarySerializerLibrary.Base
         /// <param name="value"></param>
         public static byte[] SetVectorData(byte[] data, byte value)
         {
-            if (data == null) return null;
+            if (data == null) return Array.Empty<byte>();
 
             for (int i = 0; i < data.Length; i++)
             {

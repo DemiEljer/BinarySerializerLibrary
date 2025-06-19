@@ -1,6 +1,7 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Enums;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,20 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public static class ObjectSerializationRecipesMapper
     {
-        private static Dictionary<Type, ObjectSerializationRecipe> _ObjectsRecipes { get; } = new();
-
+        /// <summary>
+        /// ��������� ������� �������� ��� ��������� ��������
+        /// </summary>
+        private static ConcurrentDictionary<Type, ObjectSerializationRecipe> _ObjectsRecipes { get; } = new();
+        /// <summary>
+        /// �������� ������ ��������� �������
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <returns></returns>
         public static ObjectSerializationRecipe GetRecipe(Type objectType)
         {
             if (!_ObjectsRecipes.ContainsKey(objectType))
             {
-                _ObjectsRecipes.Add(objectType, ObjectSerializationRecipeFabric.CreateReciepe(objectType));
+                _ObjectsRecipes.TryAdd(objectType, ObjectSerializationRecipeFabric.CreateRecipe(objectType));
             }
             return _ObjectsRecipes[objectType];
         }

@@ -11,11 +11,32 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Базовая коллекция
         /// </summary>
-        public LinkedList<TElement?> List { get; } = new();
+        private LinkedList<TElement?> _List { get; } = new();
+        /// <summary>
+        /// Элементы списка
+        /// </summary>
+        public IEnumerable<TElement?> Elements => _List;
+        /// <summary>
+        /// Узлы списка
+        /// </summary>
+        public IEnumerable<LinkedListNode<TElement?>> Nodes
+        {
+            get
+            {
+                var currentNode = _List.First;
+
+                while (currentNode is not null)
+                {
+                    yield return currentNode;
+
+                    currentNode = currentNode.Next;
+                }
+            }
+        }
         /// <summary>
         /// Количество элементов
         /// </summary>
-        public int Count => List.Count;
+        public int Count => _List.Count;
         /// <summary>
         /// Индекс текущего элемента
         /// </summary>
@@ -26,13 +47,13 @@ namespace BinarySerializerLibrary.Base
         /// <returns></returns>
         public TElement?[] ToArray()
         {
-            if (List.Count == 0)
+            if (_List.Count == 0)
             {
                 return Array.Empty<TElement>();
             }
             else
             {
-                return List.ToArray();
+                return _List.ToArray();
             }
         }
         /// <summary>
@@ -44,7 +65,7 @@ namespace BinarySerializerLibrary.Base
         /// </summary>
         public void Clear()
         {
-            List.Clear();
+            _List.Clear();
             _CurrentNode = null;
             ElementIndex = 0;
         }
@@ -61,14 +82,30 @@ namespace BinarySerializerLibrary.Base
             // В случае, если первый элемент не был проинициализирован
             if (_CurrentNode == null)
             {
-                _CurrentNode = List.AddLast(default(TElement));
+                _CurrentNode = _List.AddLast(default(TElement));
 
                 count--;
             }
             // Добавление необходимого числа элементов
             foreach (var i in Enumerable.Range(0, count))
             {
-                var node = List.AddLast(default(TElement));
+                var node = _List.AddLast(default(TElement));
+            }
+        }
+        /// <summary>
+        /// Добавить коллекцию элементов
+        /// </summary>
+        /// <param name="elements"></param>
+        public void AppendElements(IEnumerable<TElement?> elements)
+        {
+            if (elements is null)
+            {
+                return;
+            }
+
+            foreach (var element in elements)
+            {
+                _List.AddLast(element);
             }
         }
         /// <summary>
@@ -136,7 +173,7 @@ namespace BinarySerializerLibrary.Base
             _SetElementsFromEnumeration(handler(_GetElementsEnumeration()));
         }
         /// <summary>
-        /// Сдвиг по вектору
+        /// Сдвиг по списку
         /// </summary>
         /// <param name="count"></param>
         public void Shift(int count)
@@ -153,11 +190,20 @@ namespace BinarySerializerLibrary.Base
             }
         }
         /// <summary>
+        /// Сдвиг по списку до конца
+        /// </summary>
+        /// <param name="count"></param>
+        public void ShiftToEnd()
+        {
+            _CurrentNode = null;
+            ElementIndex = Count;
+        }
+        /// <summary>
         /// Сбросить текущий элемент к начальному в коллекции
         /// </summary>
         public void ResetCurrentElement()
         {
-            _CurrentNode = List.First;
+            _CurrentNode = _List.First;
             ElementIndex = 0;
         }
     }

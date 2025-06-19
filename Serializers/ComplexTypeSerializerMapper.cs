@@ -72,7 +72,7 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public static void SerializeObject(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder)
+        public static void SerializeObject(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
         {
             var serializer = GetSerializer(attribute);
 

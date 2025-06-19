@@ -10,14 +10,14 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public static class ObjectSerializationRecipeFabric
     {
-        public static ObjectSerializationRecipe CreateReciepe(Type objectType)
+        public static ObjectSerializationRecipe CreateRecipe(Type objectType)
         {
-            List<BaseObjectFieldSerializationRecipe> recipes = new();
-
+            List<BaseObjectPropertySerializationRecipe> recipes = new();
+            // ����� ������������� ������ ����� �������
             foreach (var property in objectType.GetProperties())
             {
                 var propertyAttributes = property.GetCustomAttributes(true);
-
+                // ����� ��������� �������� ������������
                 foreach (var propertyAttribut in propertyAttributes)
                 {
                     if (propertyAttribut is BinaryTypeBaseAttribute)
@@ -26,11 +26,11 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
                         if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                         {
-                            recipes.Add(new ComplexObjectFieldSerializationRecipe(property, binaryFieldAttribute));
+                            recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
                         }
                         else
                         {
-                            recipes.Add(new SimpleObjectFieldSerializationRecipe(property, binaryFieldAttribute));
+                            recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
                         }
                     }
                 }

@@ -12,13 +12,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public class ObjectSerializationRecipe
     {
-        public BaseObjectFieldSerializationRecipe[] FieldsRecipes { get; }
+        public BaseObjectPropertySerializationRecipe[] FieldsRecipes { get; }
 
-        public ObjectSerializationRecipe(BaseObjectFieldSerializationRecipe[]? fieldsRecipes)
+        public ObjectSerializationRecipe(BaseObjectPropertySerializationRecipe[]? fieldsRecipes)
         {
             if (fieldsRecipes is null)
             {
-                FieldsRecipes = Array.Empty<BaseObjectFieldSerializationRecipe>();
+                FieldsRecipes = Array.Empty<BaseObjectPropertySerializationRecipe>();
             }
             else
             {
