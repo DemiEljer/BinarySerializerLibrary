@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,25 +21,45 @@ namespace BinarySerializerLibrary.Serializers
         {
             if (targetType == typeof(byte))
             {
-                var realValue = (byte)value;
+                byte realValue = (byte)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeUInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
 
                 return (UInt64)realValue & ByteVectorHandler.GetMask(size);
             }
             else if (targetType == typeof(UInt16))
             {
-                var realValue = (UInt16)value;
+                UInt16 realValue = (UInt16)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeUInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
 
                 return (UInt64)realValue & ByteVectorHandler.GetMask(size);
             }
             else if (targetType == typeof(UInt32))
             {
-                var realValue = (UInt32)value;
+                UInt32 realValue = (UInt32)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeUInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
 
                 return (UInt64)realValue & ByteVectorHandler.GetMask(size);
             }
             else if (targetType == typeof(UInt64))
             {
-                var realValue = (UInt64)value;
+                UInt64 realValue = (UInt64)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeUInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
 
                 return (UInt64)realValue & ByteVectorHandler.GetMask(size);
             }

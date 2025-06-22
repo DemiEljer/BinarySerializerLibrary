@@ -22,7 +22,7 @@ namespace BinarySerializerLibrary.Serializers
                 {
                     foreach (var symbolIndex in Enumerable.Range(0, stringLength))
                     {
-                        yield return BaseTypeSerializerMapper.DeserializeValue<char>(reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
+                        yield return BaseTypeSerializerMapper.DeserializeValue<char>(reader.ReadValue(attribute.Size, attribute.Alignment), attribute.Size);
                     }
                 }
 
@@ -44,7 +44,7 @@ namespace BinarySerializerLibrary.Serializers
             {
                 foreach (var stringSymbol in stringObject)
                 {
-                    builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(stringSymbol, attribute.FieldSize), attribute.Alignment);
+                    builder.AppendBitValue(attribute.Size, BaseTypeSerializerMapper.SerializeValue(stringSymbol, attribute.Size), attribute.Alignment);
                 }
             }
         }

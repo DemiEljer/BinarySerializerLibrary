@@ -1,6 +1,7 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.Enums;
+using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace BinarySerializerLibrary.Serializers
             }
             else
             {
-                return 0;
+                throw new CollectionSizeIsTooLargeException(collectionSize, 0x3FFFFFFF);
             }
         }
         /// <summary>
@@ -86,7 +87,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static void SerializeComplexValue(BinaryTypeBaseAttribute attribute, object? value, BinaryArrayBuilder builder)
         {
-            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value) =>
+            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value, _) =>
             {
                 ComplexTypeSerializerMapper.SerializeObject(attribute, _value, builder);
             });
@@ -99,7 +100,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static object? DeserializeComplexValue(BinaryTypeBaseAttribute attribute, Type valueType, BinaryArrayReader reader)
         {
-            return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, () =>
+            return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, (_) =>
             {
                 return ComplexTypeSerializerMapper.DeserializeObject(attribute, valueType, reader);
             });
@@ -112,9 +113,9 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static void SerializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, object? value, BinaryArrayBuilder builder)
         {
-            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value) =>
+            ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value, _attribute) =>
             {
-                builder.AppendBitValue(attribute.FieldSize, BaseTypeSerializerMapper.SerializeValue(valueType, _value, attribute.FieldSize), attribute.Alignment);
+                builder.AppendBitValue(_attribute.Size, BaseTypeSerializerMapper.SerializeValue(valueType, _value, _attribute.Size), _attribute.Alignment);
             });
         }
         /// <summary>
@@ -125,16 +126,16 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="builder"></param>
         public static object? DeserializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, BinaryArrayReader reader)
         {
-            return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, () =>
+            return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, (_attribute) =>
             {
-                return BaseTypeSerializerMapper.DeserializeValue(valueType, reader.ReadValue(attribute.FieldSize, attribute.Alignment), attribute.FieldSize);
+                return BaseTypeSerializerMapper.DeserializeValue(valueType, reader.ReadValue(_attribute.Size, _attribute.Alignment), _attribute.Size);
             });
         }
         /// <summary>
         /// Проверить, что объект необходимо сериализовать
         /// </summary>
         /// <returns></returns>
-        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder, Action<object> objectSerializationHandler)
+        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder, Action<object, BinaryTypeBaseAttribute> objectSerializationHandler)
         {
             if (attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable
                 || IsComplexType(attribute))
@@ -147,23 +148,23 @@ namespace BinarySerializerLibrary.Serializers
                 {
                     builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
 
-                    objectSerializationHandler.Invoke(obj);
+                    objectSerializationHandler.Invoke(obj, attribute.CloneAndChange(null, BinaryAlignmentTypeEnum.NoAlignment));
                 }
             }
             else
             {
                 if (obj is null)
                 {
-                    throw new ArgumentNullException("Сериализуемый объект имеет значение null, а не должен");
+                    throw new ObjectValueIsNullException();
                 }
-                objectSerializationHandler.Invoke(obj);
+                objectSerializationHandler.Invoke(obj, attribute);
             }
         }
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public static object? CheckNullObjectDeserialization(BinaryTypeBaseAttribute attribute, BinaryArrayReader reader, Func<object?> objectDeserializationHandler)
+        public static object? CheckNullObjectDeserialization(BinaryTypeBaseAttribute attribute, BinaryArrayReader reader, Func<BinaryTypeBaseAttribute, object?> objectDeserializationHandler)
         {
             if (attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable
                 || IsComplexType(attribute))
@@ -172,7 +173,7 @@ namespace BinarySerializerLibrary.Serializers
 
                 if (objectExistence)
                 {
-                    return objectDeserializationHandler.Invoke();
+                    return objectDeserializationHandler.Invoke(attribute.CloneAndChange(null, BinaryAlignmentTypeEnum.NoAlignment));
                 }
                 else
                 {
@@ -181,7 +182,7 @@ namespace BinarySerializerLibrary.Serializers
             }
             else
             {
-                return objectDeserializationHandler.Invoke();
+                return objectDeserializationHandler.Invoke(attribute);
             }
         }
         /// <summary>

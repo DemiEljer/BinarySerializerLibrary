@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Enums;
+using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ namespace BinarySerializerLibrary.Base
         {
             if (ByteArray is null)
             {
-                throw new ArgumentNullException(nameof(ByteArray));
+                throw new ByteArrayReaderIsOverException();
             }
 
             // Применение выравнивания
@@ -71,7 +72,7 @@ namespace BinarySerializerLibrary.Base
             // Проверка на достижение конца массива
             if (IsEndOfArray || nextBitIndex > BitLength)
             {
-                throw new ArgumentOutOfRangeException("Достигнут конец бинарного массива");
+                throw new ByteArrayReaderIsOverException();
             }
 
             // Вычленение значения из вектора байт
@@ -94,6 +95,8 @@ namespace BinarySerializerLibrary.Base
                     break;
                 default: break;
             }
+            // Ограничение индекса бита фактическим размером массива
+            BitIndex = Math.Clamp(BitIndex, 0, BitLength);
         }
     }
 }

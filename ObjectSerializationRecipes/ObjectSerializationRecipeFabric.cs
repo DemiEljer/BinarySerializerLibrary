@@ -12,6 +12,12 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
     {
         public static ObjectSerializationRecipe? CreateRecipe(Type objectType)
         {
+            // В случае, если тип не является классом или нет конструкторов по умолчанию, то прекращаем генерацию рецепта
+            if (!ObjectTypeVerificationHandler.VerifyObjectType(objectType))
+            {
+                return null;
+            }
+
             List<BaseObjectPropertySerializationRecipe> recipes = new();
             // Поиск свойств для сериализации
             foreach (var property in objectType.GetProperties())
@@ -24,7 +30,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                     {
                         var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribute;
 
-                        if (ObjectPropertyTypeVerificationHandler.VerifyProperty(property.PropertyType, binaryFieldAttribute))
+                        if (ObjectTypeVerificationHandler.VerifyProperty(property, binaryFieldAttribute))
                         {
                             if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                             {

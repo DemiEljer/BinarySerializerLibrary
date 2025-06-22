@@ -10,30 +10,32 @@ namespace BinarySerializerLibrary.Attributes
     public abstract class BinaryTypeBaseAttribute : Attribute
     {
         /// <summary>
-        /// ������ ����
+        /// Размер свойства
         /// </summary>
-        public int FieldSize { get; } = 0;
+        public int Size { get; } = 0;
         /// <summary>
-        /// ��� ����
+        /// Тип свойства
         /// </summary>
         public BinaryArgumentTypeEnum Type { get; }
         /// <summary>
-        /// ������������ ����
+        /// Выравнивание свойства
         /// </summary>
         public BinaryAlignmentTypeEnum Alignment { get; }
         /// <summary>
-        /// ��������� ����������� �������������� �������� � null
+        /// Может ли свойство принимать значение null
         /// </summary>
         public BinaryNullableTypeEnum Nullable { get; }
 
-        public BinaryTypeBaseAttribute(int fieldSize, BinaryArgumentTypeEnum type, BinaryAlignmentTypeEnum alignment, BinaryNullableTypeEnum nullable)
+        public BinaryTypeBaseAttribute(int size, BinaryArgumentTypeEnum type, BinaryAlignmentTypeEnum alignment, BinaryNullableTypeEnum nullable)
         {
-            FieldSize = fieldSize;
+            Size = size;
             Type = type;
             Alignment = alignment;
             Nullable = nullable;
         }
 
-        public abstract BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single);
+        public abstract BinaryTypeBaseAttribute CloneAndChange(BinaryArgumentTypeEnum? type = null, BinaryAlignmentTypeEnum? alignment = null);
+
+        public override string ToString() => $"{GetType().Name}({Size}, {Type}, {Alignment}, {Nullable})";
     }
 }

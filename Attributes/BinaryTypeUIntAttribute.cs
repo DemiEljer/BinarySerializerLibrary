@@ -21,13 +21,19 @@ namespace BinarySerializerLibrary.Attributes
         {
         }
 
-        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : base(Math.Clamp(size, 0, 64), type, alignment, nullable)
+        public BinaryTypeUIntAttribute(int size, BinaryNullableTypeEnum nullable, BinaryAlignmentTypeEnum alignment, BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single) : base(Math.Max(size, 0), type, alignment, nullable)
         {
         }
 
-        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single)
+        public override BinaryTypeBaseAttribute CloneAndChange(BinaryArgumentTypeEnum? type = null, BinaryAlignmentTypeEnum? alignment = null)
         {
-            return new BinaryTypeUIntAttribute(FieldSize, Nullable, Alignment, type);
+            return new BinaryTypeUIntAttribute
+            (
+                Size
+                , Nullable
+                , alignment is null ? Alignment : (BinaryAlignmentTypeEnum)alignment
+                , type is null ? Type : (BinaryArgumentTypeEnum)type
+            );
         }
     }
 }

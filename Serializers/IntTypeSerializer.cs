@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,19 +21,47 @@ namespace BinarySerializerLibrary.Serializers
         {
             if (targetType == typeof(sbyte))
             {
-                return ByteVectorHandler.GetUIntFromInt((sbyte)value, size); ;
+                sbyte realValue = (sbyte)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
+
+                return ByteVectorHandler.GetUIntFromInt(realValue, size);
             }
             else if (targetType == typeof(Int16))
             {
-                return ByteVectorHandler.GetUIntFromInt((Int16)value, size); ;
+                Int16 realValue = (Int16)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
+
+                return ByteVectorHandler.GetUIntFromInt(realValue, size);
             }
             else if (targetType == typeof(Int32))
             {
-                return ByteVectorHandler.GetUIntFromInt((Int32)value, size); ;
+                Int32 realValue = (Int32)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
+
+                return ByteVectorHandler.GetUIntFromInt(realValue, size);
             }
             else if (targetType == typeof(Int64))
             {
-                return ByteVectorHandler.GetUIntFromInt((Int64)value, size); ;
+                Int64 realValue = (Int64)value;
+
+                if (!ByteVectorHandler.DoesValueSuitsBitSizeInt(realValue, size))
+                {
+                    throw new TypeTooSmallForValueException(size, realValue);
+                }
+
+                return ByteVectorHandler.GetUIntFromInt(realValue, size);
             }
             else
             {

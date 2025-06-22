@@ -18,9 +18,13 @@ namespace BinarySerializerLibrary.Attributes
         {
         }
 
-        public override BinaryTypeBaseAttribute CloneAndChangeType(BinaryArgumentTypeEnum type = BinaryArgumentTypeEnum.Single)
+        public override BinaryTypeBaseAttribute CloneAndChange(BinaryArgumentTypeEnum? type = null, BinaryAlignmentTypeEnum? alignment = null)
         {
-            return new BinaryTypeObjectAttribute(Alignment, type);
+            return new BinaryTypeObjectAttribute
+            (
+                alignment is null ? Alignment : (BinaryAlignmentTypeEnum)alignment
+                , type is null ? Type : (BinaryArgumentTypeEnum)type
+            );
         }
     }
 }

@@ -10,6 +10,7 @@
 */
 
 // Класс объекта верхнего уровня
+[BinarySerializableObject]
 public class CANMessagesCollection
 {
     [BinaryTypeObject(BinaryArgumentTypeEnum.List)]
@@ -20,6 +21,7 @@ public class CANMessagesCollection
 }
 
 // Класс включаемого объекта
+[BinarySerializableObject]
 public class CANMessage
 {
     [BinaryTypeUInt(29)]
@@ -46,7 +48,19 @@ var binaryData = BinarySerializer.SerializeExceptionShielding(obj1, (e) => Conso
 // Получение объекта из сериализованного массива байт
 var unpackedCollection = BinarySerializer.DeserializeExceptionShielding<CANMessagesCollection>(binaryData, (e) => Console.WriteLine(e.Message));
 
+// Также имеется возмодность заранее подготовить рецепты сериализуемых объектов, чтобы не тратить время в процессе активной работы
+BinarySerializer.CookObjectRecipeExceptionShielding<CANMessagesCollection>((e) => Console.WriteLine(e.Message));
+BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.WriteLine(e.Message));
+
 ```
+
+### Условия сериализации
+
+**Объекты** будут сериализованы, если при их объявлении они помечены атрибутом **BinarySerializableObjectAttribute** и у них есть **публичный конструктор по умолчанию**.
+
+**Свойства** будут сериализовываться в случае, если они **публичные** (**Getter** и **Setter**) и их **атрибут соответствует типу** этого свойства.
+
+> **Примечание.** При создании рецепта сериализации объекта все эти условия будут проверены, и в случае их неслоблюдения будет выброшено исключение **ObjectTypeVerificationFailedException**.
 
 ### Аттрибуты поментки свойств объектов
 
@@ -63,7 +77,11 @@ var unpackedCollection = BinarySerializer.DeserializeExceptionShielding<CANMessa
 |BinaryTypeStringAttribute|string|16 бит на символ|
 |BinaryTypeObjectAttribute|Атрибут-метка, что вложенный объект необходимо сериализовать|-|
 
+Также, при объявлении сериализуемых классов, необходимо помечать их атрибутом **BinarySerializableObjectAttribute**.
+
 > **Примечание.** Атрибуты **BinaryTypeIntAttribute** и **BinaryTypeUIntAttribute** позволяют управлять размером сериализуемого значения, что позволяет экономить место при получении двоичного представления в случаях, если не весь диапазон значений оригинального типа задействуется.
+
+> **Примечание.** При сериализации целочисленных значений (**BinaryTypeIntAttribute** и **BinaryTypeUIntAttribute**) учитываются фактические граничные значения, задаваемые размерами поля, в случае, если значение не помещается в заданные рамки, будет выброшено исключение **TypeTooSmallForValueException**.
 
 При добавлении атрибутов (в конструкторах) можно указать выравнивание сериализуемых свойств с помощью перечисления **BinaryAlignmentTypeEnum**.
 
@@ -71,7 +89,6 @@ var unpackedCollection = BinarySerializer.DeserializeExceptionShielding<CANMessa
 |------------|--------|
 |BinaryAlignmentTypeEnum.NoAlignment|Значение свойства обрабатывается без выравнивания|
 |BinaryAlignmentTypeEnum.ByteAlignment|Значение свойства обрабатывается с выравниванием по байтам|
-
 
 > **Примечание.** По умолчанию все свойства обрабатываются без выравнивания.
 
@@ -93,7 +110,18 @@ var unpackedCollection = BinarySerializer.DeserializeExceptionShielding<CANMessa
 |BinaryArgumentTypeEnum.List|Свойство представлено типом-списком|
 
 > **Примечание.** По умолчанию все атрибуты предполагают атомарный тип свойства.
+
 > **Примечание.** Максимальное количество элементов строк и коллекций ограничено значением **1073741823**.
+
+### Генерируемые исключения
+
+|Тип исключения|Описание|
+|------------|--------|
+|ByteArrayReaderIsOverException|Попытка чтения бинарного массива при фактическом достижении его конца|
+|CollectionSizeIsTooLargeException|Превышен максимальный размер коллекции|
+|ObjectTypeVerificationFailedException|Нарушены правила оформления сериализуемых объектов|
+|ObjectValueIsNullException|Появилось значение null для значения, а не предполагается|
+|TypeTooSmallForValueException|Величина значения (целочисленного) превышает максимально возможное соответствующее количеству занимаемых бит|
 
 ### Примечания
 Используется утилита [CommitContentCreater](https://github.com/DemiEljer/CommitContentCreater) для формирования текстов описания коммитов.

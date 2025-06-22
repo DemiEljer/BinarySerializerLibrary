@@ -14,17 +14,17 @@ namespace BinarySerializerLibrary.Serializers
         {
             var collectionType = _GetCollectionElementType(objType);
             var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(collectionType);
-            // Получение атрибута едичного объекта массива
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
+            // Получение атрибута едичного объекта коллекции
+            attribute = attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single);
 
             if (collectionElementType is not null && collectionType is not null)
             {
-                // Десераилизация размера массива
+                // Десераилизация размера коллекции
                 var collectionSize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
                 // Создание экземпляра объекта
                 var collectionObject = _CreateObjectInstance(objType, collectionType, collectionSize);
 
-                // Десериализация элементов массива 
+                // Десериализация элементов коллекции 
                 if (collectionObject != null)
                 {
                     // Десерализация составных объектов-полей
@@ -60,17 +60,17 @@ namespace BinarySerializerLibrary.Serializers
         public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
         {
             var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(_GetCollectionElementType(obj.GetType()));
-            // Получение аттрибута едичного объекта массива
-            attribute = attribute.CloneAndChangeType(Enums.BinaryArgumentTypeEnum.Single);
+            // Получение аттрибута едичного объекта коллекции
+            attribute = attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single);
 
             if (collectionElementType != null)
             {
                 var collectionSize = _GetCollectionSize(obj);
 
-                // Сериализация размер массива
+                // Сериализация размера коллекции
                 collectionSize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, collectionSize, builder);
 
-                // Сериализация элементов вектора
+                // Сериализация элементов коллекции
                 if (collectionSize > 0)
                 {
                     // Сериализация в случае, если объект составной

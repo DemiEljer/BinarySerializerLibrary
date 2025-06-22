@@ -126,12 +126,39 @@ namespace BinarySerializerLibrary.Base
 
             return data;
         }
+        /// <summary>
+        /// Проверка, что значение помещается в отведенное количество бит
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="bitSize"></param>
+        /// <returns></returns>
+        public static bool DoesValueSuitsBitSizeUInt(UInt64 value, int bitSize) => value <= GetMaxValue(bitSize);
+        /// <summary>
+        /// Проверка, что значение помещается в отведенное количество бит
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="bitSize"></param>
+        /// <returns></returns>
+        public static bool DoesValueSuitsBitSizeInt(Int64 value, int bitSize)
+        {
+            // Обработка граничного случая
+            if (bitSize == 0)
+            {
+                return value == 0;
+            }
+            else
+            {
+                var halfMaxValue = (long)(GetMaxValue(bitSize) >> 1);
+
+                return value <= halfMaxValue && value >= -(halfMaxValue + 1);
+            }
+        }
 
         public static Int64 GetIntFromUInt(UInt64 value, int bitSize)
         {
             value &= GetMask(bitSize);
 
-            if (bitSize == 128 || (value & GetSignBit(bitSize)) == 0)
+            if (bitSize == 64 || (value & GetSignBit(bitSize)) == 0)
             {
                 return (long)value;
             }
@@ -145,7 +172,7 @@ namespace BinarySerializerLibrary.Base
         {
             value &= (long)GetMask(bitSize);
 
-            if (bitSize == 128 || value >= 0)
+            if (bitSize == 64 || value >= 0)
             {
                 return (ulong)value;
             }
