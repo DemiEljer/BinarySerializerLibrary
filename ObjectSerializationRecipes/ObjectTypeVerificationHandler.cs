@@ -16,13 +16,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             {
                 return false;
             }
-            // ����� �������� �������, ��� ������ �������� ������������
+            // Поиск атрибута метки, что данный класс подлежит сериализации
             if (objectType.GetCustomAttributes(true).FirstOrDefault(attribute => attribute is BinarySerializableObjectAttribute) == null)
             {
                 return false;
             }
 
-            // ����� ������������� � �������������� �����������
+            // Поиск конструктора по умолчанию
             if (objectType.GetConstructors().FirstOrDefault(constructor => constructor.GetParameters().Length == 0 && constructor.IsPublic) == null)
             {
                 return false;

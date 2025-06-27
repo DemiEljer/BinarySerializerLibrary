@@ -70,6 +70,14 @@ namespace BinarySerializerLibrary.Base
             ElementIndex = 0;
         }
         /// <summary>
+        /// Добавить элемент в начало списка
+        /// </summary>
+        /// <param name="value"></param>
+        public void AppendToHead(TElement value)
+        {
+            _List.AddFirst(value);
+        }
+        /// <summary>
         /// Создать и добавить элементы в конец списка
         /// </summary>
         /// <param name="count"></param>

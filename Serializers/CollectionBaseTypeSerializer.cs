@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace BinarySerializerLibrary.Serializers
 {
     public abstract class CollectionBaseTypeSerializer : ComplexBaseTypeSerializer
     {
-        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             var collectionType = _GetCollectionElementType(objType);
             var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(collectionType);
@@ -57,7 +57,7 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
+        public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder)
         {
             var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(_GetCollectionElementType(obj.GetType()));
             // Получение аттрибута едичного объекта коллекции

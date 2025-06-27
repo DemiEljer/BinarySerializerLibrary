@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Enums;
 using BinarySerializerLibrary.Exceptions;
 using System;
@@ -27,33 +27,33 @@ namespace BinarySerializerLibrary.Serializers
         /// <summary>
         /// Сериализовать размер коллекции
         /// </summary>
-        public static int SerializeCollectionSize(BinaryTypeBaseAttribute attribute, int collectionSize, BinaryArrayBuilder builder)
+        public static int SerializeCollectionSize(BinaryTypeBaseAttribute attribute, int collectionSize, ABinaryDataWriter builder)
         {
             if (collectionSize <= 0x3F)
             {
-                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(0, 2), attribute.Alignment);
-                builder.AppendBitValue(6, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 6), BinaryAlignmentTypeEnum.NoAlignment);
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(0, 2), attribute.Alignment);
+                builder.AppendValue(6, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 6), BinaryAlignmentTypeEnum.NoAlignment);
 
                 return collectionSize;
             }
             else if (collectionSize <= 0x3FFF)
             {
-                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(1, 2), attribute.Alignment);
-                builder.AppendBitValue(14, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 14), BinaryAlignmentTypeEnum.NoAlignment);
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(1, 2), attribute.Alignment);
+                builder.AppendValue(14, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 14), BinaryAlignmentTypeEnum.NoAlignment);
 
                 return collectionSize;
             }
             else if (collectionSize <= 0x3FFFFF)
             {
-                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(2, 2), attribute.Alignment);
-                builder.AppendBitValue(22, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 22), BinaryAlignmentTypeEnum.NoAlignment);
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(2, 2), attribute.Alignment);
+                builder.AppendValue(22, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 22), BinaryAlignmentTypeEnum.NoAlignment);
 
                 return collectionSize;
             }
             else if (collectionSize <= 0x3FFFFFFF)
             {
-                builder.AppendBitValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(3, 2), attribute.Alignment);
-                builder.AppendBitValue(30, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 30), BinaryAlignmentTypeEnum.NoAlignment);
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(3, 2), attribute.Alignment);
+                builder.AppendValue(30, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 30), BinaryAlignmentTypeEnum.NoAlignment);
 
                 return collectionSize;
             }
@@ -66,7 +66,7 @@ namespace BinarySerializerLibrary.Serializers
         /// Десериализовать размер коллекции
         /// </summary>
         /// <returns></returns>
-        public static int DeserializeCollectionSize(BinaryTypeBaseAttribute attribute, BinaryArrayReader reader)
+        public static int DeserializeCollectionSize(BinaryTypeBaseAttribute attribute, ABinaryDataReader reader)
         {
             var sizeByteCount = BaseTypeSerializerMapper.DeserializeValue<byte>(reader.ReadValue(2, attribute.Alignment), 2);
 
@@ -85,7 +85,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="value"></param>
         /// <param name="builder"></param>
-        public static void SerializeComplexValue(BinaryTypeBaseAttribute attribute, object? value, BinaryArrayBuilder builder)
+        public static void SerializeComplexValue(BinaryTypeBaseAttribute attribute, object? value, ABinaryDataWriter builder)
         {
             ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value, _) =>
             {
@@ -98,7 +98,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="value"></param>
         /// <param name="builder"></param>
-        public static object? DeserializeComplexValue(BinaryTypeBaseAttribute attribute, Type valueType, BinaryArrayReader reader)
+        public static object? DeserializeComplexValue(BinaryTypeBaseAttribute attribute, Type valueType, ABinaryDataReader reader)
         {
             return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, (_) =>
             {
@@ -111,11 +111,11 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="value"></param>
         /// <param name="builder"></param>
-        public static void SerializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, object? value, BinaryArrayBuilder builder)
+        public static void SerializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, object? value, ABinaryDataWriter builder)
         {
             ComplexBaseTypeSerializer.CheckNullObjectSerialization(attribute, value, builder, (_value, _attribute) =>
             {
-                builder.AppendBitValue(_attribute.Size, BaseTypeSerializerMapper.SerializeValue(valueType, _value, _attribute.Size), _attribute.Alignment);
+                builder.AppendValue(_attribute.Size, BaseTypeSerializerMapper.SerializeValue(valueType, _value, _attribute.Size), _attribute.Alignment);
             });
         }
         /// <summary>
@@ -124,7 +124,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="value"></param>
         /// <param name="builder"></param>
-        public static object? DeserializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, BinaryArrayReader reader)
+        public static object? DeserializeAtomicValue(BinaryTypeBaseAttribute attribute, Type valueType, ABinaryDataReader reader)
         {
             return ComplexBaseTypeSerializer.CheckNullObjectDeserialization(attribute, reader, (_attribute) =>
             {
@@ -135,18 +135,18 @@ namespace BinarySerializerLibrary.Serializers
         /// Проверить, что объект необходимо сериализовать
         /// </summary>
         /// <returns></returns>
-        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, BinaryArrayBuilder builder, Action<object, BinaryTypeBaseAttribute> objectSerializationHandler)
+        public static void CheckNullObjectSerialization(BinaryTypeBaseAttribute attribute, object? obj, ABinaryDataWriter builder, Action<object, BinaryTypeBaseAttribute> objectSerializationHandler)
         {
             if (attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable
                 || IsComplexType(attribute))
             {
                 if (obj is null)
                 {
-                    builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(false, 1), attribute.Alignment);
+                    builder.AppendValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(false, 1), attribute.Alignment);
                 }
                 else
                 {
-                    builder.AppendBitValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
+                    builder.AppendValue(1, BaseTypeSerializerMapper.SerializeValue<bool>(true, 1), attribute.Alignment);
 
                     objectSerializationHandler.Invoke(obj, attribute.CloneAndChange(null, BinaryAlignmentTypeEnum.NoAlignment));
                 }
@@ -164,7 +164,7 @@ namespace BinarySerializerLibrary.Serializers
         /// 
         /// </summary>
         /// <returns></returns>
-        public static object? CheckNullObjectDeserialization(BinaryTypeBaseAttribute attribute, BinaryArrayReader reader, Func<BinaryTypeBaseAttribute, object?> objectDeserializationHandler)
+        public static object? CheckNullObjectDeserialization(BinaryTypeBaseAttribute attribute, ABinaryDataReader reader, Func<BinaryTypeBaseAttribute, object?> objectDeserializationHandler)
         {
             if (attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable
                 || IsComplexType(attribute))
@@ -211,7 +211,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="attribute"></param>
         /// <param name="obj"></param>
         /// <param name="builder"></param>
-        public abstract void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder);
+        public abstract void Serialize(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder);
         /// <summary>
         /// Десериализовать объект
         /// </summary>
@@ -219,6 +219,6 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="objType"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public abstract object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader);
+        public abstract object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader);
     }
 }

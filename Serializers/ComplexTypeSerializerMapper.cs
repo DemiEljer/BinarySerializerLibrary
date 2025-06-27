@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Enums;
 using System;
 using System.Collections.Generic;
@@ -53,12 +53,12 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public static TValue? DeserializeObject<TValue>(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        public static TValue? DeserializeObject<TValue>(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             return (TValue?)DeserializeObject(attribute, objType, reader);
         }
 
-        public static object? DeserializeObject(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        public static object? DeserializeObject(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             var serializer = GetSerializer(attribute);
 
@@ -72,7 +72,7 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public static void SerializeObject(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
+        public static void SerializeObject(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder)
         {
             var serializer = GetSerializer(attribute);
 

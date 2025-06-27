@@ -1,4 +1,4 @@
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Serializers;
 using Microsoft.VisualBasic.FileIO;
 using System;
@@ -26,7 +26,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
         }
 
-        public void Deserialization(object deserializingObject, BinaryArrayReader reader)
+        public void Deserialization(object deserializingObject, ABinaryDataReader reader)
         {
             foreach (var fieldRecipe in FieldsRecipes)
             {
@@ -34,7 +34,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
         }
 
-        public void Serialization(object serializingObject, BinaryArrayBuilder builder)
+        public void Serialization(object serializingObject, ABinaryDataWriter builder)
         {
             foreach (var fieldRecipe in FieldsRecipes)
             {

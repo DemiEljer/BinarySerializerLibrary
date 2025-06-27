@@ -1,3 +1,4 @@
+using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.Enums;
 using BinarySerializerLibrary.Exceptions;
 using System;
@@ -6,30 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Base
+namespace BinarySerializerLibrary.BinaryDataHandlers
 {
-    public class BinaryArrayReader
+    public class BinaryArrayReader : ABinaryDataReader
     {
         /// <summary>
         /// Массив байт
         /// </summary>
         public byte[]? ByteArray { get; private set; } = null;
         /// <summary>
-        /// Текущий индекс бита
-        /// </summary>
-        public int BitIndex { get; private set; }
-        /// <summary>
-        /// Размер вектора в битах
-        /// </summary>
-        public int BitLength => ByteCount * 8;
-        /// <summary>
         /// Количество байт
         /// </summary>
-        public int ByteCount => ByteArray == null ? 0 : ByteArray.Length;
-        /// <summary>
-        /// Флаг, что достигнут конец файла
-        /// </summary>
-        public bool IsEndOfArray => BitLength <= BitIndex;
+        public override long ByteLength => ByteArray == null ? 0 : ByteArray.Length;
 
         public BinaryArrayReader() { }
 
@@ -54,11 +43,9 @@ namespace BinarySerializerLibrary.Base
             BitIndex = 0;
         }
         /// <summary>
-        /// Получить значение поля
+        /// Получить значение
         /// </summary>
-        /// <param name="bitSize"></param>
-        /// <returns></returns>
-        public UInt64 ReadValue(int bitSize, BinaryAlignmentTypeEnum alignment)
+        public override ulong ReadValue(int bitSize, BinaryAlignmentTypeEnum alignment)
         {
             if (ByteArray is null)
             {
@@ -68,7 +55,7 @@ namespace BinarySerializerLibrary.Base
             // Применение выравнивания
             MakeAlignment(alignment);
 
-            int nextBitIndex = BitIndex + bitSize;
+            long nextBitIndex = BitIndex + bitSize;
             // Проверка на достижение конца массива
             if (IsEndOfArray || nextBitIndex > BitLength)
             {
@@ -85,13 +72,13 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Сделать байтовое выравнивание
         /// </summary>
-        public void MakeAlignment(BinaryAlignmentTypeEnum alignment)
+        public override void MakeAlignment(BinaryAlignmentTypeEnum alignment)
         {
             // Применение выравнивания
             switch (alignment)
             {
                 case BinaryAlignmentTypeEnum.ByteAlignment:
-                    BitIndex = (BitIndex % 8) == 0 ? BitIndex : ((BitIndex / 8) + 1) * 8;
+                    BitIndex = BitIndex % 8 == 0 ? BitIndex : (BitIndex / 8 + 1) * 8;
                     break;
                 default: break;
             }

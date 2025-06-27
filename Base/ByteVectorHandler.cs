@@ -189,7 +189,7 @@ namespace BinarySerializerLibrary.Base
         /// <param name="bitSize"></param>
         /// <param name="bitPosition"></param>
         /// <returns></returns>
-        public static UInt64 GetVectorParamValue(byte[] data, int bitSize, int bitPosition)
+        public static UInt64 GetVectorParamValue(byte[] data, int bitSize, long bitPosition)
         {
             if (data == null)
             {
@@ -197,14 +197,14 @@ namespace BinarySerializerLibrary.Base
             }
 
             // Смещение выходного значения
-            int shift = bitPosition % 8;
+            int shift = (int)(bitPosition % 8);
 
             UInt64 result = 0;
 
             if (bitSize > (8 - shift))
             {
                 // Текущий индекс байта
-                int currentBytePosition = bitPosition / 8;
+                int currentBytePosition = (int)(bitPosition / 8);
                 // Текущий индекс бита
                 int currentBitPosition = 8 - shift;
                 // Инициализируем первые биты
@@ -233,7 +233,42 @@ namespace BinarySerializerLibrary.Base
         /// <param name="bitPosition"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static IEnumerable<byte> SetVectorParamValue(IEnumerable<byte>? data, int bitSize, int bitPosition, UInt64 value)
+        public static void SetVectorParamValue(byte[]? data, int bitSize, long bitPosition, UInt64 value)
+        {
+            if (data != null)
+            {
+                int startByteIndex = (int)(bitPosition / 8);
+                int bytesCount = bitSize / 8 + (bitSize % 8 == 0 ? 0 : 1);
+
+                if (startByteIndex < data.Length
+                    && (startByteIndex + bytesCount) <= data.Length)
+                {
+                    IEnumerable<byte> _GetOriginBytes()
+                    {
+                        foreach (var index in Enumerable.Range(startByteIndex, bytesCount))
+                        {
+                            yield return data[index];
+                        }
+                    }
+
+                    int byteIndex = startByteIndex;
+                    foreach (var resultValue in SetVectorParamValue(_GetOriginBytes(), bitSize, bitPosition, value))
+                    {
+                        data[byteIndex] = resultValue;
+                        byteIndex++;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Установить значение параметра в вектор данных
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="bitSize"></param>
+        /// <param name="bitPosition"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static IEnumerable<byte> SetVectorParamValue(IEnumerable<byte>? data, int bitSize, long bitPosition, UInt64 value)
         {
             if (data == null || !data.Any())
             {
@@ -241,7 +276,7 @@ namespace BinarySerializerLibrary.Base
             }
 
             // Смещение выходного значения
-            int shift = bitPosition % 8;
+            int shift = (int)(bitPosition % 8);
 
             if (bitSize > (8 - shift))
             {

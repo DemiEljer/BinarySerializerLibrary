@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Serializers;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <summary>
         /// Сереализация свойства
         /// </summary>
-        public void Serialization(object serializingObject, BinaryArrayBuilder builder)
+        public void Serialization(object serializingObject, ABinaryDataWriter builder)
         {
             var propertyValue = FieldProperty.GetValue(serializingObject);
 
@@ -43,12 +43,12 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <summary>
         /// Сереализация свойства
         /// </summary>
-        public abstract void _Serialization(object? propertyValue, BinaryArrayBuilder builder);
+        public abstract void _Serialization(object? propertyValue, ABinaryDataWriter builder);
         /// <summary>
         /// Десерииализация свойства
         /// </summary>
         /// <returns></returns>
-        public void Deserialization(object deserializingObject, BinaryArrayReader reader)
+        public void Deserialization(object deserializingObject, ABinaryDataReader reader)
         {
             var propertyValue = _Deserialization(reader);
 
@@ -57,6 +57,6 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <summary>
         /// Десерииализация свойства
         /// </summary>
-        public abstract object? _Deserialization(BinaryArrayReader reader);
+        public abstract object? _Deserialization(ABinaryDataReader reader);
     }
 }

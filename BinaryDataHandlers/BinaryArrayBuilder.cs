@@ -1,17 +1,27 @@
+using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.Enums;
+using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Base
+namespace BinarySerializerLibrary.BinaryDataHandlers
 {
     /// <summary>
     /// Класс для построения бинарного массива
     /// </summary>
-    public class BinaryArrayBuilder
+    public class BinaryArrayBuilder : ABinaryDataWriter
     {
+        /// <summary>
+        /// Максимальный размер коллекции в байтах
+        /// </summary>
+        public static int MaxBytesCount { get; } = Array.MaxLength - BinaryDataLengthParameterHelpers.MaxDataArrayLengthFieldSize;
+        /// <summary>
+        /// Максимальный размер коллекции в битах
+        /// </summary>
+        public static long MaxBitsCount { get; } = (long)MaxBytesCount * 8;
         /// <summary>
         /// Коллекция байт
         /// </summary>
@@ -19,36 +29,51 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Реальный размер массива в битах
         /// </summary>
-        public int RealBitLength => _ByteList.Count * 8;
+        public override int BytesCount => _ByteList.Count;
         /// <summary>
-        /// Преобразовать в массив
+        /// Реальный размер массива в битах
+        /// </summary>
+        public long ActualBitsCount => (long)_ByteList.Count * 8;
+        /// <summary>
+        /// Получить коллекцию байт
         /// </summary>
         /// <returns></returns>
-        public byte[] GetByteArray() => _ByteList.ToArray();
+        public override IEnumerable<byte> GetBytes() => _ByteList.Elements;
         /// <summary>
         /// Текущий индекс в коллекции
         /// </summary>
-        public int CurrentBitIndex { get; private set; } = 0;
+        public long CurrentBitIndex { get; protected set; } = 0;
         /// <summary>
         /// Добавить некоторое число бит к коллекции
         /// </summary>
-        /// <param name="bitCount"></param>
-        public void AppendBits(int bitsCount)
+        public void AppendBits(long bitsCount)
         {
-            int targetBitLength = CurrentBitIndex + bitsCount;
-            // В случае, если целевое количество бит превышает текущее выделенное, то расширяем коллекцию байт
-            if (targetBitLength > RealBitLength)
-            {
-                int appendingBytesCount = targetBitLength - RealBitLength;
-                appendingBytesCount = (appendingBytesCount / 8) + ((appendingBytesCount % 8) > 0 ? 1 : 0);
+            _VerifyCollectionBitSizeModification(bitsCount);
 
-                _ByteList.CreateAndAppendToEnd(appendingBytesCount);
+            long targetBitLength = CurrentBitIndex + bitsCount;
+            // В случае, если целевое количество бит превышает текущее выделенное, то расширяем коллекцию байт
+            if (targetBitLength > ActualBitsCount)
+            {
+                long appendingBytesCount = targetBitLength - ActualBitsCount;
+                appendingBytesCount = appendingBytesCount / 8 + (appendingBytesCount % 8 > 0 ? 1 : 0);
+
+                _ByteList.CreateAndAppendToEnd((int)(appendingBytesCount));
             }
+        }
+        /// <summary>
+        /// Добавить байт в начало коллекции
+        /// </summary>
+        public override void AppendByteToHead(byte byteValue)
+        {
+            _VerifyCollectionBitSizeModification(8);
+
+            CurrentBitIndex += 8;
+            _ByteList.AppendToHead(byteValue);
         }
         /// <summary>
         /// Записать битовое поле
         /// </summary>
-        public void AppendBitValue(int bitsCount, UInt64 value, BinaryAlignmentTypeEnum alignment)
+        public override void AppendValue(int bitsCount, ulong value, BinaryAlignmentTypeEnum alignment)
         {
             // Применение выравнивания
             MakeAlignment(alignment);
@@ -75,14 +100,14 @@ namespace BinarySerializerLibrary.Base
                 CurrentBitIndex += bitsCount;
                 // Определяем смещение в коллекции байт
                 if (takingBytesCount == 1
-                    && (CurrentBitIndex % 8) == 0)
+                    && CurrentBitIndex % 8 == 0)
                 {
                     // Если полностью был задействован байт
                     _ByteList.Shift(takingBytesCount);
                 }
                 else if (takingBytesCount > 1)
                 {
-                    if ((CurrentBitIndex % 8) == 0)
+                    if (CurrentBitIndex % 8 == 0)
                     {
                         // Если полностью был задействован байт
                         _ByteList.Shift(takingBytesCount);
@@ -98,18 +123,22 @@ namespace BinarySerializerLibrary.Base
         /// <summary>
         /// Добавить содержимое другого объекта построения байтового массива и сдвинуться в конец
         /// </summary>
-        public void AppenBuilderAndShiftToEnd(BinaryArrayBuilder builder)
+        public override void AppenBuilderAndShiftToEnd(ABinaryDataWriter builder)
         {
             if (builder is null
-                || builder._ByteList.Count == 0)
+                || builder.BytesCount == 0)
             {
                 return;
             }
 
-            _ByteList.AppendElements(builder._ByteList.Elements);
+            _VerifyCollectionByteSizeModification(builder.BytesCount);
+            // Модификация коллекции
+            {
+                _ByteList.AppendElements(builder.GetBytes());
 
-            _ByteList.ShiftToEnd();
-            CurrentBitIndex = RealBitLength;
+                _ByteList.ShiftToEnd();
+                CurrentBitIndex = ActualBitsCount;
+            }
         }
         /// <summary>
         /// Расчет количества задействованных байт
@@ -122,7 +151,7 @@ namespace BinarySerializerLibrary.Base
                 return 0;
             }
 
-            int byteShift = 8 - (CurrentBitIndex % 8);
+            int byteShift = 8 - (int)(CurrentBitIndex % 8);
             //int targetBitLength = CurrentBitIndex + bitsCount;
 
             // Определение, задействован ли полностью текущий байт
@@ -130,32 +159,33 @@ namespace BinarySerializerLibrary.Base
             // Определение количества полных байт
             int middlePart = (bitsCount - byteShift) / 8;
             // Определение, задействован последний неполный байт
-            int lastPart = ((bitsCount - byteShift) % 8) > 0 ? 1 : 0;
+            int lastPart = (bitsCount - byteShift) % 8 > 0 ? 1 : 0;
 
             return firstPart + middlePart + lastPart;
         }
         /// <summary>
         /// Сделать байтовое выравнивание
         /// </summary>
-        public void MakeAlignment(BinaryAlignmentTypeEnum alignment)
+        public override void MakeAlignment(BinaryAlignmentTypeEnum alignment)
         {
-            int alignmentOffset = 0;
+            long alignmentOffset = 0;
             // Выбор типа выравнивания
             switch (alignment)
             {
                 case BinaryAlignmentTypeEnum.ByteAlignment:
-                    alignmentOffset = (CurrentBitIndex % 8) == 0 ? 0 : 8 - (CurrentBitIndex % 8);
+                    alignmentOffset = CurrentBitIndex % 8 == 0 ? 0 : 8 - CurrentBitIndex % 8;
                     break;
                 default: break;
             }
 
             if (alignmentOffset > 0)
             {
+                _VerifyCollectionByteSizeModification(alignmentOffset);
                 // Добавление недостающего вектора данных
                 AppendBits(alignmentOffset);
 
                 // Количество байт сдвига (гарантированно на 1 байт)
-                int alignmentByteShifting = alignmentOffset / 8 + 1;
+                int alignmentByteShifting = (int)(alignmentOffset / 8) + 1;
                 // Сдвиг в векторе данных
                 _ByteList.Shift(alignmentByteShifting);
 
@@ -163,11 +193,35 @@ namespace BinarySerializerLibrary.Base
                 CurrentBitIndex += alignmentOffset;
             }
         }
-
-        public void Clear()
+        /// <summary>
+        /// Очистить объект построения бинарной коллекции
+        /// </summary>
+        public override void Clear()
         {
             _ByteList.Clear();
             CurrentBitIndex = 0;
+        }
+        /// <summary>
+        /// Верификация размера коллекции в байтах
+        /// </summary>
+        /// <param name="size"></param>
+        private void _VerifyCollectionBitSizeModification(long addingBitsCount)
+        {
+            if ((CurrentBitIndex + addingBitsCount) > MaxBitsCount)
+            {
+                throw new ByteArrayIsOutOfMaximumLength();
+            }
+        }
+        /// <summary>
+        /// Верификация размера коллекции в байтах
+        /// </summary>
+        /// <param name="size"></param>
+        private void _VerifyCollectionByteSizeModification(long addingByteCount)
+        {
+            if ((BytesCount + addingByteCount) > MaxBytesCount)
+            {
+                throw new ByteArrayIsOutOfMaximumLength();
+            }
         }
     }
 }

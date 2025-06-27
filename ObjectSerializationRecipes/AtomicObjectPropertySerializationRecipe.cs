@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Serializers;
 using System;
 using System.Collections.Generic;
@@ -17,8 +17,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
         }
 
-        public override object? _Deserialization(BinaryArrayReader reader) => ComplexBaseTypeSerializer.DeserializeAtomicValue(FieldAttribute, FieldType, reader);
+        public override object? _Deserialization(ABinaryDataReader reader) => ComplexBaseTypeSerializer.DeserializeAtomicValue(FieldAttribute, FieldType, reader);
 
-        public override void _Serialization(object? propertyValue, BinaryArrayBuilder builder) => ComplexBaseTypeSerializer.SerializeAtomicValue(FieldAttribute, FieldType, propertyValue, builder);
+        public override void _Serialization(object? propertyValue, ABinaryDataWriter builder) => ComplexBaseTypeSerializer.SerializeAtomicValue(FieldAttribute, FieldType, propertyValue, builder);
     }
 }

@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace BinarySerializerLibrary.Serializers
 {
     public class ObjectTypeSerializer : ComplexBaseTypeSerializer
     {
-        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, BinaryArrayReader reader)
+        public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(objType);
 
@@ -24,7 +24,7 @@ namespace BinarySerializerLibrary.Serializers
 
             return resultObject;
         }
-        public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, BinaryArrayBuilder builder)
+        public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder)
         {
             var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());
 
