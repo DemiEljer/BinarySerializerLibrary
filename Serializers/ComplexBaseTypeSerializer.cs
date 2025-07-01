@@ -25,41 +25,75 @@ namespace BinarySerializerLibrary.Serializers
                    || fieldAttribute.Type != BinaryArgumentTypeEnum.Single;
         }
         /// <summary>
+        /// Сериализовать масштабируемое знаковое целочисленное значение
+        /// </summary>
+        /// <returns></returns>
+        public static int SerializeScalableIntValue(BinaryAlignmentTypeEnum alignment, int value, ABinaryDataWriter builder)
+        {
+            if (value <= 0x3F)
+            {
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(0, 2), alignment);
+                builder.AppendValue(6, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)value, 6), BinaryAlignmentTypeEnum.NoAlignment);
+
+                return value;
+            }
+            else if (value <= 0x3FFF)
+            {
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(1, 2), alignment);
+                builder.AppendValue(14, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)value, 14), BinaryAlignmentTypeEnum.NoAlignment);
+
+                return value;
+            }
+            else if (value <= 0x3FFFFF)
+            {
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(2, 2), alignment);
+                builder.AppendValue(22, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)value, 22), BinaryAlignmentTypeEnum.NoAlignment);
+
+                return value;
+            }
+            else if (value <= 0x3FFFFFFF)
+            {
+                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(3, 2), alignment);
+                builder.AppendValue(30, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)value, 30), BinaryAlignmentTypeEnum.NoAlignment);
+
+                return value;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        /// <summary>
         /// Сериализовать размер коллекции
         /// </summary>
         public static int SerializeCollectionSize(BinaryTypeBaseAttribute attribute, int collectionSize, ABinaryDataWriter builder)
         {
-            if (collectionSize <= 0x3F)
-            {
-                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(0, 2), attribute.Alignment);
-                builder.AppendValue(6, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 6), BinaryAlignmentTypeEnum.NoAlignment);
+            int resultCollectionSize = SerializeScalableIntValue(attribute.Alignment, collectionSize, builder);
 
-                return collectionSize;
-            }
-            else if (collectionSize <= 0x3FFF)
+            if (resultCollectionSize >= 0)
             {
-                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(1, 2), attribute.Alignment);
-                builder.AppendValue(14, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 14), BinaryAlignmentTypeEnum.NoAlignment);
-
-                return collectionSize;
-            }
-            else if (collectionSize <= 0x3FFFFF)
-            {
-                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(2, 2), attribute.Alignment);
-                builder.AppendValue(22, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 22), BinaryAlignmentTypeEnum.NoAlignment);
-
-                return collectionSize;
-            }
-            else if (collectionSize <= 0x3FFFFFFF)
-            {
-                builder.AppendValue(2, BaseTypeSerializerMapper.SerializeValue<byte>(3, 2), attribute.Alignment);
-                builder.AppendValue(30, BaseTypeSerializerMapper.SerializeValue<UInt32>((UInt32)collectionSize, 30), BinaryAlignmentTypeEnum.NoAlignment);
-
-                return collectionSize;
+                return resultCollectionSize;
             }
             else
             {
                 throw new CollectionSizeIsTooLargeException(collectionSize, 0x3FFFFFFF);
+            }
+        }
+        /// <summary>
+        /// Десериализовать масштабируемое знаковое целочисленное значение
+        /// </summary>
+        /// <returns></returns>
+        public static int DeserializeScalableIntValue(BinaryAlignmentTypeEnum alignment, ABinaryDataReader reader)
+        {
+            var sizeByteCount = BaseTypeSerializerMapper.DeserializeValue<byte>(reader.ReadValue(2, alignment), 2);
+
+            switch (sizeByteCount)
+            {
+                case 0x00: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(6, BinaryAlignmentTypeEnum.NoAlignment), 6);
+                case 0x01: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(14, BinaryAlignmentTypeEnum.NoAlignment), 14);
+                case 0x02: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(22, BinaryAlignmentTypeEnum.NoAlignment), 22);
+                case 0x03: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(30, BinaryAlignmentTypeEnum.NoAlignment), 30);
+                default: return -1;
             }
         }
         /// <summary>
@@ -68,16 +102,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <returns></returns>
         public static int DeserializeCollectionSize(BinaryTypeBaseAttribute attribute, ABinaryDataReader reader)
         {
-            var sizeByteCount = BaseTypeSerializerMapper.DeserializeValue<byte>(reader.ReadValue(2, attribute.Alignment), 2);
-
-            switch (sizeByteCount)
-            {
-                case 0x00: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(6, BinaryAlignmentTypeEnum.NoAlignment), 6);
-                case 0x01: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(14, BinaryAlignmentTypeEnum.NoAlignment), 14);
-                case 0x02: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(22, BinaryAlignmentTypeEnum.NoAlignment), 22);
-                case 0x03: return (Int32)BaseTypeSerializerMapper.DeserializeValue<UInt32>(reader.ReadValue(30, BinaryAlignmentTypeEnum.NoAlignment), 30);
-                default: return 0;
-            }
+            return DeserializeScalableIntValue(attribute.Alignment, reader);
         }
         /// <summary>
         /// Сериализовать значение

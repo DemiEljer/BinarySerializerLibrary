@@ -11,9 +11,13 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
     public abstract class ABinaryDataWriter
     {
         /// <summary>
+        /// Реальный размер массива в байтах
+        /// </summary>
+        public abstract long BytesCount { get; }
+        /// <summary>
         /// Реальный размер массива в битах
         /// </summary>
-        public abstract int BytesCount { get; }
+        public long BitsCount => BytesCount * 8;
         /// <summary>
         /// Получить массив байт
         /// </summary>

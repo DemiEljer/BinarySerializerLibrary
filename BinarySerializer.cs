@@ -1,5 +1,7 @@
 using BinarySerializerLibrary.Attributes;
+using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.BinaryDataHandlers;
+using BinarySerializerLibrary.BinaryDataHandlers.Helpers;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
 using BinarySerializerLibrary.Serializers;
 using System.IO;
@@ -268,6 +270,68 @@ namespace BinarySerializerLibrary
             }
         }
         /// <summary>
+        /// Получить объект из массива байт
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static object? AutoDeserializeExceptionThrowing(byte[]? content)
+        {
+            return AutoDeserializeExceptionShielding(content, (e) => throw e);
+        }
+        /// <summary>
+        /// Получить объект из массива байт
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static object? AutoDeserializeExceptionShielding(byte[]? content, Action<Exception>? exceptionCallback = null)
+        {
+            var binaryReader = new BinaryArrayReader(content);
+
+            return AutoDeserializeExceptionShielding(binaryReader, exceptionCallback);
+        }
+        /// <summary>
+        /// Получить объект с помощью байтового обработчика
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static object? AutoDeserializeExceptionThrowing(this ABinaryDataReader binaryReader)
+        {
+            return AutoDeserializeExceptionShielding(binaryReader, (e) => throw e);
+        }
+        /// <summary>
+        /// Получить объект с помощью байтового обработчика
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static object? AutoDeserializeExceptionShielding(this ABinaryDataReader binaryReader, Action<Exception>? exceptionCallback = null)
+        {
+            if (binaryReader is null)
+            {
+                exceptionCallback?.Invoke(new ArgumentNullException(nameof(binaryReader)));
+
+                return null;
+            }
+
+            try
+            {
+                return ObjectSerializer.AutoDeserializeObject(binaryReader);
+            }
+            catch (Exception e)
+            {
+                exceptionCallback?.Invoke(e);
+
+                return null;
+            }
+        }
+        /// <summary>
         /// Проверить, что размер сериализованного объекта может быть прочитан
         /// </summary>
         /// <param name="binaryReader"></param>
@@ -299,11 +363,11 @@ namespace BinarySerializerLibrary
             }
             else if ((binaryReader.BitIndex % 8) == 0)
             {
-                return (binaryReader.ByteIndex + objectSerializedCollectionSize) <= binaryReader.ByteLength;
+                return (binaryReader.ByteIndex + objectSerializedCollectionSize) <= binaryReader.BytesCount;
             }
             else
             {
-                return (binaryReader.ByteIndex + objectSerializedCollectionSize + 1) <= binaryReader.ByteLength;
+                return (binaryReader.ByteIndex + objectSerializedCollectionSize + 1) <= binaryReader.BytesCount;
             }
         }
 
@@ -376,5 +440,54 @@ namespace BinarySerializerLibrary
         }
 
         #endregion CookRecipe
+
+        #region TypesRegistration
+
+        /// <summary>
+        /// Зарегистрировать тип для логики автоматической сериализации
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="typeCode"></param>
+        public static void RegisterTypeForAutoSerializationExceptionThrowing<ObjectType>(int typeCode) =>
+            RegisterTypeForAutoSerializationExceptionShielding(typeof(ObjectType), typeCode, (e) => throw e);
+        /// <summary>
+        /// Зарегистрировать тип для логики автоматической сериализации
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="typeCode"></param>
+        public static void RegisterTypeForAutoSerializationExceptionThrowing(Type objectType, int typeCode) =>
+            RegisterTypeForAutoSerializationExceptionShielding(objectType, typeCode, (e) => throw e);
+        /// <summary>
+        /// Зарегистрировать тип для логики автоматической сериализации
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="typeCode"></param>
+        public static void RegisterTypeForAutoSerializationExceptionShielding<ObjectType>(int typeCode, Action<Exception>? exceptionCallback = null)
+        {
+            RegisterTypeForAutoSerializationExceptionShielding(typeof(ObjectType), typeCode, exceptionCallback);
+        }    
+        /// <summary>
+        /// Зарегистрировать тип для логики автоматической сериализации
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="typeCode"></param>
+        public static void RegisterTypeForAutoSerializationExceptionShielding(Type objectType, int typeCode, Action<Exception>? exceptionCallback = null)
+        {
+            try
+            {
+                BinarySerializerObjectTypeMapper.RegisterType(objectType, typeCode);
+            }
+            catch (Exception e)
+            {
+                exceptionCallback?.Invoke(e);
+            }
+        }
+        /// Получить коллекцию зарегистрированных типов для автоматической сериализации
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<ObjectTypeCodePair> GetRegisteredTypesForAutoSerialization() => 
+            BinarySerializerObjectTypeMapper.ObjectTypes;
+
+        #endregion TypesRegistration
     }
 }

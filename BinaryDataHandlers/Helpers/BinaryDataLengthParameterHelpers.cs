@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace BinarySerializerLibrary.BinaryDataHandlers
+namespace BinarySerializerLibrary.BinaryDataHandlers.Helpers
 {
     public static class BinaryDataLengthParameterHelpers
     {
@@ -51,7 +51,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         /// </summary>
         /// <param name="binaryReader"></param>
         /// <returns></returns>
-        public static bool CheckIfBinaryCollectionSizeCanBeRead(ABinaryDataReader? binaryReader) => UnpackBinaryCollectionSizeWithoutShifting(binaryReader) != null;
+        public static bool CheckIfBinaryCollectionSizeCanBeRead(ABinaryDataReader? binaryReader) => UnpackBinaryCollectionSizeWithoutShifting(binaryReader) is not null;
         /// <summary>
         /// Распаковать длину массива данных с учетом длины параметра размера
         /// </summary>
@@ -75,13 +75,14 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         private static int? _UnpackCollectionSize(ABinaryDataReader? binaryReader, bool shiftingFlag)
         {
             if (binaryReader is null
-                || binaryReader.IsEndOfArray)
+                || binaryReader.IsEndOfCollection)
             {
                 return null;
             }
             else
             {
                 long beforeInvokeReaderLocation = binaryReader.BitIndex;
+
                 try
                 {
                     // Модификатор поля размера массива данных
@@ -93,13 +94,13 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
 
                     if (sizeModificationBitValue == 0)
                     {
-                        collectionSize = (int)(binaryReader.ReadValue(15, BinaryAlignmentTypeEnum.NoAlignment));
+                        collectionSize = (int)binaryReader.ReadValue(15, BinaryAlignmentTypeEnum.NoAlignment);
 
                         sizeParamCompensation = 2;
                     }
                     else
                     {
-                        collectionSize = (int)(binaryReader.ReadValue(31, BinaryAlignmentTypeEnum.NoAlignment));
+                        collectionSize = (int)binaryReader.ReadValue(31, BinaryAlignmentTypeEnum.NoAlignment);
 
                         sizeParamCompensation = 4;
                     }

@@ -16,6 +16,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// Словарь готовых рецептов объектов
         /// </summary>
         private static ConcurrentDictionary<Type, ObjectSerializationRecipe?> _ObjectsRecipes { get; } = new();
+
+        private static ObjectSerializationRecipeFabric _ObjectRecipesFabric { get; } = new();
+
+        static ObjectSerializationRecipesMapper()
+        {
+            _ObjectRecipesFabric.ObjectTypeHasBeenDetectedEvent += (type) => GetRecipe(type);
+        }
         /// <summary>
         /// Получить рецепт обработки объекта
         /// </summary>
@@ -25,7 +32,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         {
             if (!_ObjectsRecipes.ContainsKey(objectType))
             {
-                _ObjectsRecipes.TryAdd(objectType, ObjectSerializationRecipeFabric.CreateRecipe(objectType));
+                _ObjectsRecipes.TryAdd(objectType, _ObjectRecipesFabric.CreateRecipe(objectType));
             }
 
             var recipe = _ObjectsRecipes[objectType];

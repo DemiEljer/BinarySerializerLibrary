@@ -12,13 +12,17 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
     public class BinaryArrayReader : ABinaryDataReader
     {
         /// <summary>
+        /// Текущий индекс бита
+        /// </summary>
+        public override long BitIndex { get; protected set; }
+        /// <summary>
         /// Массив байт
         /// </summary>
         public byte[]? ByteArray { get; private set; } = null;
         /// <summary>
         /// Количество байт
         /// </summary>
-        public override long ByteLength => ByteArray == null ? 0 : ByteArray.Length;
+        public override long BytesCount => ByteArray == null ? 0 : ByteArray.Length;
 
         public BinaryArrayReader() { }
 
@@ -38,9 +42,17 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         /// <summary>
         /// Сбросить индекс битов
         /// </summary>
-        public void ResetBitIndex()
+        public override void ResetBitIndex()
         {
             BitIndex = 0;
+        }
+        /// <summary>
+        /// Очистить объект чтения бинарной коллекции
+        /// </summary>
+        public override void Clear()
+        {
+            ResetBitIndex();
+            ByteArray = null;
         }
         /// <summary>
         /// Получить значение
@@ -57,7 +69,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
 
             long nextBitIndex = BitIndex + bitSize;
             // Проверка на достижение конца массива
-            if (IsEndOfArray || nextBitIndex > BitLength)
+            if (IsEndOfCollection || nextBitIndex > BitsCount)
             {
                 throw new ByteArrayReaderIsOverException();
             }
@@ -65,7 +77,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
             // Вычленение значения из вектора байт
             var resultValue = ByteVectorHandler.GetVectorParamValue(ByteArray, bitSize, BitIndex);
             // Инкрементирование индекса в векторе байтов
-            BitIndex = Math.Clamp(nextBitIndex, 0, BitLength);
+            BitIndex = Math.Clamp(nextBitIndex, 0, BitsCount);
 
             return resultValue;
         }
@@ -83,7 +95,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
                 default: break;
             }
             // Ограничение индекса бита фактическим размером массива
-            BitIndex = Math.Clamp(BitIndex, 0, BitLength);
+            BitIndex = Math.Clamp(BitIndex, 0, BitsCount);
         }
     }
 }

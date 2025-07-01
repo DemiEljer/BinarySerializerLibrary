@@ -8,12 +8,21 @@ using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
-    public static class ObjectSerializationRecipeFabric
+    public class ObjectSerializationRecipeFabric
     {
-        public static ObjectSerializationRecipe? CreateRecipe(Type objectType)
+        public event Action<Type>? ObjectTypeHasBeenDetectedEvent;
+
+        private ObjectTypeVerificationHandler _TypeVerificationHandler { get; } = new();
+
+        public ObjectSerializationRecipeFabric()
+        {
+            _TypeVerificationHandler.ObjectTypeHasBeenDetectedEvent += (type) => ObjectTypeHasBeenDetectedEvent?.Invoke(type);
+        }
+
+        public ObjectSerializationRecipe? CreateRecipe(Type objectType)
         {
             // В случае, если тип не является классом или нет конструкторов по умолчанию, то прекращаем генерацию рецепта
-            if (!ObjectTypeVerificationHandler.VerifyObjectType(objectType))
+            if (!_TypeVerificationHandler.VerifyObjectType(objectType))
             {
                 return null;
             }
@@ -30,7 +39,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                     {
                         var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribute;
 
-                        if (ObjectTypeVerificationHandler.VerifyProperty(property, binaryFieldAttribute))
+                        if (_TypeVerificationHandler.VerifyProperty(property, binaryFieldAttribute))
                         {
                             if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                             {

@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
-    public static class ObjectTypeVerificationHandler
+    public class ObjectTypeVerificationHandler
     {
-        public static bool VerifyObjectType(Type? objectType)
+        public event Action<Type>? ObjectTypeHasBeenDetectedEvent;
+
+        public bool VerifyObjectType(Type? objectType)
         {
             if (objectType is null || !objectType.IsClass || !objectType.IsPublic)
             {
@@ -31,7 +33,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             return true;
         }
 
-        public static bool VerifyProperty(PropertyInfo? propertyInfo, BinaryTypeBaseAttribute attribute)
+        public bool VerifyProperty(PropertyInfo? propertyInfo, BinaryTypeBaseAttribute attribute)
         {
             if (propertyInfo is null
                 || propertyInfo.SetMethod?.IsPublic != true
@@ -43,7 +45,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             return VerifyPropertyType(propertyInfo.PropertyType, attribute);
         }
 
-        public static bool VerifyPropertyType(Type? propertyType, BinaryTypeBaseAttribute attribute)
+        public bool VerifyPropertyType(Type? propertyType, BinaryTypeBaseAttribute attribute)
         {
             if (propertyType is null)
             {
@@ -97,7 +99,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
         }
 
-        private static bool _VerifyPropertyAtomicType(Type? propertyType, BinaryTypeBaseAttribute attribute)
+        private bool _VerifyPropertyAtomicType(Type? propertyType, BinaryTypeBaseAttribute attribute)
         {
             if (propertyType is null)
             {
@@ -115,6 +117,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             {
                 if (attribute is BinaryTypeObjectAttribute)
                 {
+                    ObjectTypeHasBeenDetectedEvent?.Invoke(propertyType);
+
                     return true;
                 }
             }

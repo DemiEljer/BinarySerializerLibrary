@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Base;
+using BinarySerializerLibrary.BinaryDataHandlers.Helpers;
 using BinarySerializerLibrary.Enums;
 using BinarySerializerLibrary.Exceptions;
 using System;
@@ -27,13 +28,9 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         /// </summary>
         private LinkedListWrapper<byte> _ByteList { get; } = new();
         /// <summary>
-        /// Реальный размер массива в битах
+        /// Реальный размер массива в байтах
         /// </summary>
-        public override int BytesCount => _ByteList.Count;
-        /// <summary>
-        /// Реальный размер массива в битах
-        /// </summary>
-        public long ActualBitsCount => (long)_ByteList.Count * 8;
+        public override long BytesCount => _ByteList.Count;
         /// <summary>
         /// Получить коллекцию байт
         /// </summary>
@@ -52,9 +49,9 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
 
             long targetBitLength = CurrentBitIndex + bitsCount;
             // В случае, если целевое количество бит превышает текущее выделенное, то расширяем коллекцию байт
-            if (targetBitLength > ActualBitsCount)
+            if (targetBitLength > BitsCount)
             {
-                long appendingBytesCount = targetBitLength - ActualBitsCount;
+                long appendingBytesCount = targetBitLength - BitsCount;
                 appendingBytesCount = appendingBytesCount / 8 + (appendingBytesCount % 8 > 0 ? 1 : 0);
 
                 _ByteList.CreateAndAppendToEnd((int)(appendingBytesCount));
@@ -137,7 +134,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
                 _ByteList.AppendElements(builder.GetBytes());
 
                 _ByteList.ShiftToEnd();
-                CurrentBitIndex = ActualBitsCount;
+                CurrentBitIndex = BitsCount;
             }
         }
         /// <summary>
