@@ -43,26 +43,23 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                         {
                             binaryFieldAttribute = _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property, binaryFieldAttribute);
                         }
+                        else if (!_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryFieldAttribute))
+                        {
+                            return null;
+                        }
                         // В случае, если невозможно определить атрибут свойства
                         if (binaryFieldAttribute is null)
                         {
                             return null;
                         }
 
-                        if (_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryFieldAttribute))
+                        if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                         {
-                            if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
-                            {
-                                recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
-                            }
-                            else
-                            {
-                                recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
-                            }
+                            recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
                         }
                         else
                         {
-                            return null;
+                            recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
                         }
 
                         break;
