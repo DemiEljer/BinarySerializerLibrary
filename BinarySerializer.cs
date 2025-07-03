@@ -3,7 +3,7 @@ using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.BinaryDataHandlers.Helpers;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
-using BinarySerializerLibrary.Serializers;
+using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System.IO;
 
 namespace BinarySerializerLibrary

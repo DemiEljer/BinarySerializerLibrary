@@ -2,29 +2,29 @@ using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.ComplexTypes
 {
-    public class ListTypeSerializer : CollectionBaseTypeSerializer
+    public class ArrayTypeSerializer : CollectionBaseTypeSerializer
     {
         /// <summary>
         /// Получить тип элемента коллекции
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected override Type? _GetCollectionElementType(Type type) => type?.GetGenericArguments().First();
+        protected override Type? _GetCollectionElementType(Type type) => type?.GetElementType();
         /// <summary>
         /// Получить размер коллекции
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        protected override int _GetCollectionSize(object obj) => ((IList)obj).Count;
+        protected override int _GetCollectionSize(object obj) => ((Array)obj).Length;
         /// <summary>
         /// Получить перечисление элементов коллекции
         /// </summary>
@@ -32,9 +32,9 @@ namespace BinarySerializerLibrary.Serializers
         /// <returns></returns>
         protected override IEnumerable<object?> _GetCollectionElements(object obj)
         {
-            foreach (var listValue in ((IList)obj))
+            foreach (var arrayValue in (Array)obj)
             {
-                yield return listValue;
+                yield return arrayValue;
             }
         }
         /// <summary>
@@ -44,8 +44,8 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="elementType"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        protected override object? _CreateObjectInstance(Type collectionType, Type elementType, int collectionSize) 
-            => Activator.CreateInstance(collectionType);
+        protected override object? _CreateObjectInstance(Type collectionType, Type elementType, int collectionSize)
+            => Array.CreateInstance(elementType, collectionSize);
         /// <summary>
         /// Установить значение элемента коллекции
         /// </summary>
@@ -54,7 +54,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="index"></param>
         protected override void _SetCollectionElement(object obj, Type objectType, object? elementValue, int elementIndex)
         {
-            objectType.GetMethod("Add")?.Invoke(obj, new object?[] { elementValue });
+            ((Array)obj).SetValue(elementValue, elementIndex);
         }
     }
 }

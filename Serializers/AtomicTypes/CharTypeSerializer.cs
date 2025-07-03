@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.AtomicTypes
 {
     public class CharTypeSerializer : BaseTypeSerializer
     {
@@ -14,7 +14,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="value"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public override UInt64 GetBinaryValue(Type targetType, object value, int size)
+        public override ulong GetBinaryValue(Type targetType, object value, int size)
         {
             return (char)value;
         }
@@ -24,7 +24,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="value"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public override object GetFromBinaryValue(Type valueType, UInt64 value, int size)
+        public override object GetFromBinaryValue(Type valueType, ulong value, int size)
         {
             return (char)value;
         }

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.ComplexTypes
 {
     public static class ObjectSerializer
     {
@@ -95,7 +95,7 @@ namespace BinarySerializerLibrary.Serializers
                 // Если размер прочитать невозможно или сериализованный объект пустой, то возвращаем null
                 if (serializedObjectSize is null
                     || serializedObjectSize == 0
-                    || binaryReader.BytesCount < (binaryReader.ByteIndex + serializedObjectSize))
+                    || binaryReader.BytesCount < binaryReader.ByteIndex + serializedObjectSize)
                 {
                     return false;
                 }

@@ -1,5 +1,5 @@
 using BinarySerializerLibrary.Attributes;
-using BinarySerializerLibrary.Serializers;
+using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +12,17 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
     {
         public event Action<Type>? ObjectTypeHasBeenDetectedEvent;
 
-        private ObjectTypeVerificationHandler _TypeVerificationHandler { get; } = new();
+        private ObjectTypeVerificationAndExtractionHandler _TypeVerificationAndExtractionHandler { get; } = new();
 
         public ObjectSerializationRecipeFabric()
         {
-            _TypeVerificationHandler.ObjectTypeHasBeenDetectedEvent += (type) => ObjectTypeHasBeenDetectedEvent?.Invoke(type);
+            _TypeVerificationAndExtractionHandler.ObjectTypeHasBeenDetectedEvent += (type) => ObjectTypeHasBeenDetectedEvent?.Invoke(type);
         }
 
         public ObjectSerializationRecipe? CreateRecipe(Type objectType)
         {
             // В случае, если тип не является классом или нет конструкторов по умолчанию, то прекращаем генерацию рецепта
-            if (!_TypeVerificationHandler.VerifyObjectType(objectType))
+            if (!_TypeVerificationAndExtractionHandler.VerifyObjectType(objectType))
             {
                 return null;
             }
@@ -37,9 +37,19 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 {
                     if (propertyAttribute is BinaryTypeBaseAttribute)
                     {
-                        var binaryFieldAttribute = (BinaryTypeBaseAttribute)propertyAttribute;
+                        var binaryFieldAttribute = propertyAttribute as BinaryTypeBaseAttribute;
+                        // Извлечение атрибута типа
+                        if (binaryFieldAttribute is BinaryTypeAutoAttribute)
+                        {
+                            binaryFieldAttribute = _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property, binaryFieldAttribute);
+                        }
+                        // В случае, если невозможно определить атрибут свойства
+                        if (binaryFieldAttribute is null)
+                        {
+                            return null;
+                        }
 
-                        if (_TypeVerificationHandler.VerifyProperty(property, binaryFieldAttribute))
+                        if (_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryFieldAttribute))
                         {
                             if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                             {
@@ -54,6 +64,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                         {
                             return null;
                         }
+
+                        break;
                     }
                 }
             }

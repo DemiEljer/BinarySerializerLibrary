@@ -6,21 +6,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.ComplexTypes
 {
     public abstract class CollectionBaseTypeSerializer : ComplexBaseTypeSerializer
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             var collectionType = _GetCollectionElementType(objType);
-            var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(collectionType);
+            var collectionElementType = GetCollectionFieldType(collectionType);
             // Получение атрибута едичного объекта коллекции
             attribute = attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single);
 
             if (collectionElementType is not null && collectionType is not null)
             {
                 // Десераилизация размера коллекции
-                var collectionSize = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
+                var collectionSize = DeserializeCollectionSize(attribute, reader);
                 // Создание экземпляра объекта
                 var collectionObject = _CreateObjectInstance(objType, collectionType, collectionSize);
 
@@ -28,11 +28,11 @@ namespace BinarySerializerLibrary.Serializers
                 if (collectionObject != null)
                 {
                     // Десерализация составных объектов-полей
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
+                    if (IsComplexType(attribute))
                     {
                         foreach (var index in Enumerable.Range(0, collectionSize))
                         {
-                            var collectionElementValue = ComplexBaseTypeSerializer.DeserializeComplexValue(attribute, collectionElementType, reader);
+                            var collectionElementValue = DeserializeComplexValue(attribute, collectionElementType, reader);
 
                             _SetCollectionElement(collectionObject, objType, collectionElementValue, index);
                         }
@@ -42,7 +42,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var index in Enumerable.Range(0, collectionSize))
                         {
-                            var collectionElementValue = ComplexBaseTypeSerializer.DeserializeAtomicValue(attribute, collectionElementType, reader);
+                            var collectionElementValue = DeserializeAtomicValue(attribute, collectionElementType, reader);
 
                             _SetCollectionElement(collectionObject, objType, collectionElementValue, index);
                         }
@@ -59,7 +59,7 @@ namespace BinarySerializerLibrary.Serializers
 
         public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder)
         {
-            var collectionElementType = ComplexBaseTypeSerializer.GetCollectionFieldType(_GetCollectionElementType(obj.GetType()));
+            var collectionElementType = GetCollectionFieldType(_GetCollectionElementType(obj.GetType()));
             // Получение аттрибута едичного объекта коллекции
             attribute = attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single);
 
@@ -68,17 +68,17 @@ namespace BinarySerializerLibrary.Serializers
                 var collectionSize = _GetCollectionSize(obj);
 
                 // Сериализация размера коллекции
-                collectionSize = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, collectionSize, builder);
+                collectionSize = SerializeCollectionSize(attribute, collectionSize, builder);
 
                 // Сериализация элементов коллекции
                 if (collectionSize > 0)
                 {
                     // Сериализация в случае, если объект составной
-                    if (ComplexBaseTypeSerializer.IsComplexType(attribute))
+                    if (IsComplexType(attribute))
                     {
                         foreach (var collectionElementValue in _GetCollectionElements(obj))
                         {
-                            ComplexBaseTypeSerializer.SerializeComplexValue(attribute, collectionElementValue, builder);
+                            SerializeComplexValue(attribute, collectionElementValue, builder);
                         }
                     }
                     // Сериализация в случае, если объект представлен атомарным полем
@@ -86,7 +86,7 @@ namespace BinarySerializerLibrary.Serializers
                     {
                         foreach (var collectionElementValue in _GetCollectionElements(obj))
                         {
-                            ComplexBaseTypeSerializer.SerializeAtomicValue(attribute, collectionElementType, collectionElementValue, builder);
+                            SerializeAtomicValue(attribute, collectionElementType, collectionElementValue, builder);
                         }
                     }
                 }

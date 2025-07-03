@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.AtomicTypes
 {
     public static class BaseTypeSerializerMapper
     {
@@ -15,14 +15,14 @@ namespace BinarySerializerLibrary.Serializers
         {
             _Serializers.Add(typeof(float), new FloatTypeSerializer());
             _Serializers.Add(typeof(double), new DoubleTypeSerializer());
-            _Serializers.Add(typeof(byte), new UIntTypeSerializer());
-            _Serializers.Add(typeof(UInt16), new UIntTypeSerializer());
-            _Serializers.Add(typeof(UInt32), new UIntTypeSerializer());
-            _Serializers.Add(typeof(UInt64), new UIntTypeSerializer());
-            _Serializers.Add(typeof(sbyte), new IntTypeSerializer());
-            _Serializers.Add(typeof(Int16), new IntTypeSerializer());
-            _Serializers.Add(typeof(Int32), new IntTypeSerializer());
-            _Serializers.Add(typeof(Int64), new IntTypeSerializer());
+            _Serializers.Add(typeof(byte), new UInt8TypeSerializer());
+            _Serializers.Add(typeof(ushort), new UInt16TypeSerializer());
+            _Serializers.Add(typeof(uint), new UInt32TypeSerializer());
+            _Serializers.Add(typeof(ulong), new UInt64TypeSerializer());
+            _Serializers.Add(typeof(sbyte), new Int8TypeSerializer());
+            _Serializers.Add(typeof(short), new Int16TypeSerializer());
+            _Serializers.Add(typeof(int), new Int32TypeSerializer());
+            _Serializers.Add(typeof(long), new Int64TypeSerializer());
             _Serializers.Add(typeof(char), new CharTypeSerializer());
             _Serializers.Add(typeof(bool), new BoolTypeSerializer());
         }
@@ -39,12 +39,12 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public static TValue DeserializeValue<TValue>(UInt64 value, int size)
+        public static TValue DeserializeValue<TValue>(ulong value, int size)
         {
             return (TValue)DeserializeValue(typeof(TValue), value, size);
         }
 
-        public static object DeserializeValue(Type valueType, UInt64 value, int size)
+        public static object DeserializeValue(Type valueType, ulong value, int size)
         {
             var serializer = GetSerializer(valueType);
 
@@ -58,13 +58,13 @@ namespace BinarySerializerLibrary.Serializers
             }
         }
 
-        public static UInt64 SerializeValue<TValue>(TValue value, int size)
+        public static ulong SerializeValue<TValue>(TValue value, int size)
             where TValue : struct
         {
             return SerializeValue(typeof(TValue), value, size);
         }
 
-        public static UInt64 SerializeValue(Type valueType, object value, int size)
+        public static ulong SerializeValue(Type valueType, object value, int size)
         {
             var serializer = GetSerializer(valueType);
 

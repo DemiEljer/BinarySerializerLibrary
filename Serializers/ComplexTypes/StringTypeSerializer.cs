@@ -1,20 +1,21 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
+using BinarySerializerLibrary.Serializers.AtomicTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.ComplexTypes
 {
     internal class StringTypeSerializer : ComplexBaseTypeSerializer
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
             // Десераилизация длины строки
-            var stringLength = ComplexBaseTypeSerializer.DeserializeCollectionSize(attribute, reader);
+            var stringLength = DeserializeCollectionSize(attribute, reader);
 
             if (stringLength > 0)
             {
@@ -38,7 +39,7 @@ namespace BinarySerializerLibrary.Serializers
         {
             var stringObject = (string)obj;
             // Сериализация длины строки
-            int stringLength = ComplexBaseTypeSerializer.SerializeCollectionSize(attribute, stringObject.Length, builder);
+            int stringLength = SerializeCollectionSize(attribute, stringObject.Length, builder);
 
             if (stringLength > 0)
             {

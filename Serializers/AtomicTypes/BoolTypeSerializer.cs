@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BinarySerializerLibrary.Serializers
+namespace BinarySerializerLibrary.Serializers.AtomicTypes
 {
     public class BoolTypeSerializer : BaseTypeSerializer
     {
@@ -14,9 +14,9 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="value"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public override UInt64 GetBinaryValue(Type targetType, object value, int size)
+        public override ulong GetBinaryValue(Type targetType, object value, int size)
         {
-            return (bool)value ? (UInt64)1 : (UInt64)0;
+            return (bool)value ? 1 : (ulong)0;
         }
         /// <summary>
         /// Преобразование из двоичного вида
@@ -24,7 +24,7 @@ namespace BinarySerializerLibrary.Serializers
         /// <param name="value"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public override object GetFromBinaryValue(Type valueType, UInt64 value, int size)
+        public override object GetFromBinaryValue(Type valueType, ulong value, int size)
         {
             return value != 0 ? true : false;
         }

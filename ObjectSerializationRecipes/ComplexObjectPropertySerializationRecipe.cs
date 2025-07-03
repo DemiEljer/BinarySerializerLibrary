@@ -1,6 +1,6 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.BinaryDataHandlers;
-using BinarySerializerLibrary.Serializers;
+using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

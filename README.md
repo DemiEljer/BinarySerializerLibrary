@@ -79,12 +79,15 @@ BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.W
 |BinaryTypeCharAttribute|char|16 бит|
 |BinaryTypeStringAttribute|string|16 бит на символ|
 |BinaryTypeObjectAttribute|Атрибут-метка, что вложенный объект необходимо сериализовать|-|
+|BinaryTypeAutoAttribute|Автоматическое определение типа свойства|-|
 
 Также, при объявлении сериализуемых классов, необходимо помечать их атрибутом **BinarySerializableObjectAttribute**.
 
 > **Примечание.** Атрибуты **BinaryTypeIntAttribute** и **BinaryTypeUIntAttribute** позволяют управлять размером сериализуемого значения, что позволяет экономить место при получении двоичного представления в случаях, если не весь диапазон значений оригинального типа задействуется.
 
 > **Примечание.** При сериализации целочисленных значений (**BinaryTypeIntAttribute** и **BinaryTypeUIntAttribute**) учитываются фактические граничные значения, задаваемые размерами поля, в случае, если значение не помещается в заданные рамки, будет выброшено исключение **TypeTooSmallForValueException**.
+
+> **Примечание.** При автоматическом определении типа свойства (**BinaryTypeAutoAttribute**) будет выбран один из атрибутов конкретного декларирования.
 
 При добавлении атрибутов (в конструкторах) можно указать выравнивание сериализуемых свойств с помощью перечисления **BinaryAlignmentTypeEnum**.
 
@@ -108,7 +111,7 @@ BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.W
 
 |Тип атрибута|Описание|
 |------------|--------|
-|BinaryArgumentTypeEnum.Single|Свойство представлено атомарным типом|
+|BinaryArgumentTypeEnum.Single|Свойство представлено атомарным типов|
 |BinaryArgumentTypeEnum.Array|Свойство представлено типом-массивом|
 |BinaryArgumentTypeEnum.List|Свойство представлено типом-списком|
 
@@ -126,8 +129,8 @@ BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.W
 |SerializeExceptionShielding|Сериализовать объект в последовательность байт с экранированием исключения в случае неудачи|
 |DeserializeExceptionThrowing|Десериализовать объект из последовательности байт с выбрасыванием исключения в случае неудачи|
 |DeserializeExceptionShielding|Десериализовать объект из последовательности байт с экранированием исключения в случае неудачи|
-|AutoDeserializeExceptionThrowing|Десериализовать объект с автоматическим определением типа в соответствии с кодом типа из последовательности байт с выбрасыванием исключения в случае неудачи|
-|AutoDeserializeExceptionShielding|Десериализовать объект с автоматическим определением типа в соответствии с кодом типа из последовательности байт с экранированием исключения в случае неудачи|
+|AutoDeserializeExceptionThrowing|Десериализовать объект с автоматическим определением типа в соответсвии с кодом типа из последовательности байт с выбрасыванием исключения в случае неудачи|
+|AutoDeserializeExceptionShielding|Десериализовать объект с автоматическим определением типа в соответсвии с кодом типа из последовательности байт с экранированием исключения в случае неудачи|
 |CheckIfSerializedObjectSizeCanBeRead|Проверить, что может быть прочитан размер бинарной последовательности сериализованного объекта|
 |GetSerializedObjectSize|Получить размер бинарной последовательности сериализованного объекта|
 |CheckIfSerializedObjectCanBeRead|Проверить, что может быть прочитан сериализованный объект из бинарной последовательнсти|
@@ -149,7 +152,7 @@ BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.W
 |------------|--------|
 |BinaryArrayBuilder|Класс используется для построения массива байт при сериализации объектов|
 |BinaryArrayReader|Класс используется для чтения массива байт при десериализации объектов|
-|CompositeBinaryDataReader|Данный класс может содержать в себе произвольное количество последовательно идущих производных класса **ABinaryDataReader**, формирующих общее бинарное пространство, фактически являясь расширением **BinaryArrayReader**|
+|CompositeBinaryDataReader|Данный класс может содержать в себе произвольное количество последовательно идущих объетов, производных класса **ABinaryDataReader**, формирующих общее бинарное пространство, фактически являясь расширением **BinaryArrayReader**|
 
 > **Примечание.** Класс **BinaryArrayBuilder** наследуется от абстрактного **ABinaryDataWriter**, классы **BinaryArrayReader** и **CompositeBinaryDataReader** - от **ABinaryDataReader**.
 
