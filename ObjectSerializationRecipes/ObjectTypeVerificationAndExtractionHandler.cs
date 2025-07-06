@@ -13,6 +13,12 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
     {
         public event Action<Type>? ObjectTypeHasBeenDetectedEvent;
 
+        public event Action<Type>? ListTypeHasBeenDetectedEvent;
+
+        public event Action<Type>? ArrayTypeHasBeenDetectedEvent;
+
+        public event Action<Type>? NullableTypeHasBeenDetectedEvent;
+
         #region SubClasses
 
         public class AttributeArguments
@@ -80,6 +86,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             {
                 if (attribute.Type == Enums.BinaryArgumentTypeEnum.List)
                 {
+                    ListTypeHasBeenDetectedEvent?.Invoke(propertyType);
+
                     return VerifyPropertyType(propertyType.GetGenericArguments().FirstOrDefault(), attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single));
                 }
                 else
@@ -91,6 +99,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             {
                 if (attribute.Type == Enums.BinaryArgumentTypeEnum.Array)
                 {
+                    ArrayTypeHasBeenDetectedEvent?.Invoke(propertyType);
+
                     return VerifyPropertyType(propertyType.GetElementType(), attribute.CloneAndChange(Enums.BinaryArgumentTypeEnum.Single));
                 }
                 else
@@ -103,6 +113,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 if (attribute.Type == Enums.BinaryArgumentTypeEnum.Single
                     && attribute.Nullable == Enums.BinaryNullableTypeEnum.Nullable)
                 {
+                    NullableTypeHasBeenDetectedEvent?.Invoke(propertyType);
+
                     return VerifyPropertyType(propertyType.GetGenericArguments().FirstOrDefault(), attribute);
                 }
                 else

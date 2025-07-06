@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Attributes;
+using BinarySerializerLibrary.ObjectSerializationRecipes.TypesWrapperDelegates;
 using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         public ObjectSerializationRecipeFabric()
         {
             _TypeVerificationAndExtractionHandler.ObjectTypeHasBeenDetectedEvent += (type) => ObjectTypeHasBeenDetectedEvent?.Invoke(type);
+
+            _TypeVerificationAndExtractionHandler.ListTypeHasBeenDetectedEvent += (type) => ListTypeWrapperDelegateCollection.CookType(type);
         }
 
         public ObjectSerializationRecipe? CreateRecipe(Type objectType)
@@ -55,11 +58,11 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
                         if (ComplexBaseTypeSerializer.IsComplexType(binaryFieldAttribute))
                         {
-                            recipes.Add(new ComplexObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            recipes.Add(new ComplexObjectPropertySerializationRecipe(objectType, property, binaryFieldAttribute));
                         }
                         else
                         {
-                            recipes.Add(new AtomicObjectPropertySerializationRecipe(property, binaryFieldAttribute));
+                            recipes.Add(new AtomicObjectPropertySerializationRecipe(objectType, property, binaryFieldAttribute));
                         }
 
                         break;

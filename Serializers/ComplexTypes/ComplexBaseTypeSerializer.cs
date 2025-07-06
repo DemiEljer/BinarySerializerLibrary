@@ -111,6 +111,32 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
         /// <param name="attribute"></param>
         /// <param name="value"></param>
         /// <param name="builder"></param>
+        public static void SerializeComplexValue(ComplexBaseTypeSerializer serializer, BinaryTypeBaseAttribute attribute, object? value, ABinaryDataWriter builder)
+        {
+            CheckNullObjectSerialization(attribute, value, builder, (_value, _) =>
+            {
+                serializer.Serialize(attribute, _value, builder);
+            });
+        }
+        /// <summary>
+        /// Десериализовать значение
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="value"></param>
+        /// <param name="builder"></param>
+        public static object? DeserializeComplexValue(ComplexBaseTypeSerializer serializer, BinaryTypeBaseAttribute attribute, Type valueType, ABinaryDataReader reader)
+        {
+            return CheckNullObjectDeserialization(attribute, reader, (_) =>
+            {
+                return serializer.Deserialize(attribute, valueType, reader);
+            });
+        }
+        /// <summary>
+        /// Сериализовать значение
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="value"></param>
+        /// <param name="builder"></param>
         public static void SerializeComplexValue(BinaryTypeBaseAttribute attribute, object? value, ABinaryDataWriter builder)
         {
             CheckNullObjectSerialization(attribute, value, builder, (_value, _) =>
@@ -129,6 +155,32 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
             return CheckNullObjectDeserialization(attribute, reader, (_) =>
             {
                 return ComplexTypeSerializerMapper.DeserializeObject(attribute, valueType, reader);
+            });
+        }
+        /// <summary>
+        /// Сериализовать значение
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="value"></param>
+        /// <param name="builder"></param>
+        public static void SerializeAtomicValue(BaseTypeSerializer serializer, BinaryTypeBaseAttribute attribute, Type valueType, object? value, ABinaryDataWriter builder)
+        {
+            CheckNullObjectSerialization(attribute, value, builder, (_value, _attribute) =>
+            {
+                builder.AppendValue(_attribute.Size, serializer.GetBinaryValue(valueType, _value, _attribute.Size), _attribute.Alignment);
+            });
+        }
+        /// <summary>
+        /// Десериализовать значение
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="value"></param>
+        /// <param name="builder"></param>
+        public static object? DeserializeAtomicValue(BaseTypeSerializer serializer, BinaryTypeBaseAttribute attribute, Type valueType, ABinaryDataReader reader)
+        {
+            return CheckNullObjectDeserialization(attribute, reader, (_attribute) =>
+            {
+                return serializer.GetFromBinaryValue(valueType, reader.ReadValue(_attribute.Size, _attribute.Alignment), _attribute.Size);
             });
         }
         /// <summary>

@@ -1,6 +1,7 @@
 using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
+using BinarySerializerLibrary.ObjectSerializationRecipes.TypesWrapperDelegates;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.Serializers.ComplexTypes
 {
-    public class ListTypeSerializer : CollectionBaseTypeSerializer
+    public class  ListTypeSerializer : CollectionBaseTypeSerializer
     {
         /// <summary>
         /// Получить тип элемента коллекции
@@ -54,7 +55,7 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
         /// <param name="index"></param>
         protected override void _SetCollectionElement(object obj, Type objectType, object? elementValue, int elementIndex)
         {
-            objectType.GetMethod("Add")?.Invoke(obj, new object?[] { elementValue });
+            ListTypeWrapperDelegateCollection.InvokeAddMethod(obj, elementValue);
         }
     }
 }

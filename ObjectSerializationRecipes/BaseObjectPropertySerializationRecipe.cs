@@ -1,4 +1,5 @@
 using BinarySerializerLibrary.Attributes;
+using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.Serializers;
 using System;
@@ -15,28 +16,39 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <summary>
         /// Обрабатываемое свойство
         /// </summary>
-        public PropertyInfo FieldProperty { get; }
+        public PropertyInfo Property { get; }
         /// <summary>
         /// Тип поля
         /// </summary>
-        public Type FieldType { get; }
+        public Type PropertyType { get; }
         /// <summary>
-        /// Аттрибут сериализации поля
+        /// Атрибут сериализации поля
         /// </summary>
-        public BinaryTypeBaseAttribute FieldAttribute { get; }
+        public BinaryTypeBaseAttribute PropertyAttribute { get; }
+        /// <summary>
+        /// Делегат чтения значения свойства
+        /// </summary>
+        private Func<object, object?> _PropertyGetter { get; }
+        /// <summary>
+        /// Делегат установки значения свойства
+        /// </summary>
+        private Action<object, object?> _PropertySetter { get; }
 
-        public BaseObjectPropertySerializationRecipe(PropertyInfo fieldProperty, Type fieldType, BinaryTypeBaseAttribute fieldAttribute)
+        public BaseObjectPropertySerializationRecipe(Type objectType, PropertyInfo property, Type propertyType, BinaryTypeBaseAttribute propertyAttribute)
         {
-            FieldProperty = fieldProperty;
-            FieldType = fieldType;
-            FieldAttribute = fieldAttribute;
+            Property = property;
+            PropertyType = propertyType;
+            PropertyAttribute = propertyAttribute;
+
+            _PropertyGetter = MethodAccessDelegateCompiler.CreatePropertyGetterDelegate(objectType, Property.GetMethod);
+            _PropertySetter = MethodAccessDelegateCompiler.CreatePropertySetterDelegate(objectType, Property.SetMethod);
         }
         /// <summary>
         /// Сереализация свойства
         /// </summary>
         public void Serialization(object serializingObject, ABinaryDataWriter builder)
         {
-            var propertyValue = FieldProperty.GetValue(serializingObject);
+            var propertyValue = _PropertyGetter.Invoke(serializingObject);//Property.GetValue(serializingObject);
 
             _Serialization(propertyValue, builder);
         }
@@ -52,7 +64,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         {
             var propertyValue = _Deserialization(reader);
 
-            FieldProperty.SetValue(deserializingObject, propertyValue);
+            _PropertySetter.Invoke(deserializingObject, propertyValue);//Property.SetValue(deserializingObject, propertyValue);
         }
         /// <summary>
         /// Десерииализация свойства
