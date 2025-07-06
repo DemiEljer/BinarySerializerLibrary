@@ -166,9 +166,11 @@ BinarySerializer.CookObjectRecipeExceptionShielding<CANMessage>((e) => Console.W
 |ObjectTypeCodeIsOutOfMaximumValue|Превышено максимально допустимое значение кода типа объекта|
 |ObjectTypeVerificationFailedException|Нарушены правила оформления сериализуемых объектов|
 |ObjectValueIsNullException|Появилось значение null для значения, а не предполагается|
+|ReflectionMethodAccessException|Произошла ошибка на этапе создания делегата вызова метода через рефлексию|
 |TypeTooSmallForValueException|Величина значения (целочисленного) превышает максимально возможное соответствующее количеству занимаемых бит|
 |UnavailablePairOfTypeAndCodeException|Недопустимая пара сопоставления типа объекта и его кода|
 |UnresolvedObjectTypeException|Невозможно определить тип объекта при автоматической десериализации|
+|UnresolvedSerializerOfPropertyException|Невозможно определить сериализатор для значения свойства|
 
 ### Примечания
 Используется утилита [CommitContentCreater](https://github.com/DemiEljer/CommitContentCreater) для формирования текстов описания коммитов.
