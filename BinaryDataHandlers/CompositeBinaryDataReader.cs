@@ -184,7 +184,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
                 switch (alignment)
                 {
                     case BinaryAlignmentTypeEnum.ByteAlignment:
-                        shiftingBits = (int)(ResultBitIndex % 8 == 0 ? 0 : 8 - (ResultBitIndex % 8));
+                        shiftingBits = ByteVectorHandler.GetDeltaBits(ResultBitIndex);
                         break;
                 }
 

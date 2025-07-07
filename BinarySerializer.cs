@@ -2,6 +2,7 @@ using BinarySerializerLibrary.Attributes;
 using BinarySerializerLibrary.Base;
 using BinarySerializerLibrary.BinaryDataHandlers;
 using BinarySerializerLibrary.BinaryDataHandlers.Helpers;
+using BinarySerializerLibrary.Exceptions;
 using BinarySerializerLibrary.ObjectSerializationRecipes;
 using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System.IO;
@@ -112,13 +113,13 @@ namespace BinarySerializerLibrary
         {
             if (binaryBuilder is null)
             {
-                exceptionCallback?.Invoke(new ArgumentNullException(nameof(binaryBuilder)));
+                exceptionCallback?.Invoke(new BinaryWriterIsNullException());
 
                 return;
             }
 
             // Объект внутреннего построения бинарного массива
-            ABinaryDataWriter internalBinaryBuilder;
+            ABinaryDataWriter? internalBinaryBuilder;
             // В случае, если был передан еше не заполненный объект, то используем его
             if (binaryBuilder.BytesCount == 0)
             {
@@ -126,7 +127,14 @@ namespace BinarySerializerLibrary
             }
             else
             {
-                internalBinaryBuilder = new BinaryArrayBuilder();
+                internalBinaryBuilder = Activator.CreateInstance(binaryBuilder.GetType()) as ABinaryDataWriter;                
+            }
+
+            if (internalBinaryBuilder is null)
+            {
+                exceptionCallback?.Invoke(new BinaryWriterIsNullException());
+
+                return;
             }
 
             try
@@ -246,14 +254,14 @@ namespace BinarySerializerLibrary
         {
             if (binaryReader is null)
             {
-                exceptionCallback?.Invoke(new ArgumentNullException(nameof(binaryReader)));
+                exceptionCallback?.Invoke(new BinaryReaderIsNullException());
 
                 return null;
             }
 
             if (objectType is null)
             {
-                exceptionCallback?.Invoke(new ArgumentNullException(nameof(objectType)));
+                exceptionCallback?.Invoke(new ObjectTypeIsNullException());
 
                 return null;
             }
@@ -315,7 +323,7 @@ namespace BinarySerializerLibrary
         {
             if (binaryReader is null)
             {
-                exceptionCallback?.Invoke(new ArgumentNullException(nameof(binaryReader)));
+                exceptionCallback?.Invoke(new BinaryReaderIsNullException());
 
                 return null;
             }
@@ -422,7 +430,7 @@ namespace BinarySerializerLibrary
         {
             if (objectType is null)
             {
-                exceptionCallback?.Invoke(new ArgumentNullException(nameof(objectType)));
+                exceptionCallback?.Invoke(new ObjectTypeIsNullException());
 
                 return;
             }

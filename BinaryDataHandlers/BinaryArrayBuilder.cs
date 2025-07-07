@@ -1,7 +1,5 @@
 using BinarySerializerLibrary.Base;
-using BinarySerializerLibrary.BinaryDataHandlers.Helpers;
 using BinarySerializerLibrary.Enums;
-using BinarySerializerLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,215 +8,194 @@ using System.Threading.Tasks;
 
 namespace BinarySerializerLibrary.BinaryDataHandlers
 {
-    /// <summary>
-    /// Класс для построения бинарного массива
-    /// </summary>
-    public class BinaryArrayBuilder : ABinaryDataWriter
+    public class BinaryArrayBuilder : ABinaryArrayBuilder
     {
+        #region SubClasses
+
+        public abstract class BaseBinaryRecord
+        {
+            /// <summary>
+            /// Размер бинарного поля
+            /// </summary>
+            public sbyte BinarySize { get; }
+
+            public BaseBinaryRecord(sbyte binarySize)
+            {
+                BinarySize = binarySize;
+            }
+            /// <summary>
+            /// Получить бинарное значение поля
+            /// </summary>
+            /// <returns></returns>
+            public abstract ulong GetValue();
+
+            public static BaseBinaryRecord CreateRecord(UInt64 value, sbyte binarySize)
+            {
+                if (binarySize <= 8)
+                {
+                    return new UInt8ValueRecord((byte)value, binarySize);
+                }
+                else if(binarySize <= 16)
+                {
+                    return new UInt16ValueRecord((UInt16)value, binarySize);
+                }
+                else if (binarySize <= 32)
+                {
+                    return new UInt32ValueRecord((UInt32)value, binarySize);
+                }
+                else if (binarySize <= 64)
+                {
+                    return new UInt64ValueRecord((UInt64)value, binarySize);
+                }
+
+                throw new Exception();
+            }
+        }
+
+        public class EmptyValueRecord : BaseBinaryRecord
+        {
+            public EmptyValueRecord(sbyte binarySize) : base(binarySize)
+            {
+            }
+
+            public override ulong GetValue() => 0;
+        }
+
+        public class UInt8ValueRecord : BaseBinaryRecord
+        {
+            /// <summary>
+            /// Бинарное значение полу
+            /// </summary>
+            public byte BinaryValue { get; }
+
+            public UInt8ValueRecord(byte binaryValue, sbyte binarySize) : base(binarySize)
+            {
+                BinaryValue = binaryValue;
+            }
+
+            public override ulong GetValue() => BinaryValue;
+        }
+
+        public class UInt16ValueRecord : BaseBinaryRecord
+        {
+            /// <summary>
+            /// Бинарное значение полу
+            /// </summary>
+            public UInt16 BinaryValue { get; }
+
+            public UInt16ValueRecord(UInt16 binaryValue, sbyte binarySize) : base(binarySize)
+            {
+                BinaryValue = binaryValue;
+            }
+
+            public override ulong GetValue() => BinaryValue;
+        }
+
+        public class UInt32ValueRecord : BaseBinaryRecord
+        {
+            /// <summary>
+            /// Бинарное значение полу
+            /// </summary>
+            public UInt32 BinaryValue { get; }
+
+            public UInt32ValueRecord(UInt32 binaryValue, sbyte binarySize) : base(binarySize)
+            {
+                BinaryValue = binaryValue;
+            }
+
+            public override ulong GetValue() => BinaryValue;
+        }
+
+        public class UInt64ValueRecord : BaseBinaryRecord
+        {
+            /// <summary>
+            /// Бинарное значение полу
+            /// </summary>
+            public UInt64 BinaryValue { get; }
+
+            public UInt64ValueRecord(UInt64 binaryValue, sbyte binarySize) : base(binarySize)
+            {
+                BinaryValue = binaryValue;
+            }
+
+            public override ulong GetValue() => BinaryValue;
+        }
+
+        #endregion SubClasses
+        
         /// <summary>
-        /// Максимальный размер коллекции в байтах
+        /// Коллекция сериализуемых записей
         /// </summary>
-        public static int MaxBytesCount { get; } = Array.MaxLength - BinaryDataLengthParameterHelpers.MaxDataArrayLengthFieldSize;
+        private LinkedList<BaseBinaryRecord> _Records { get; } = new();
         /// <summary>
-        /// Максимальный размер коллекции в битах
+        /// Количество байт
         /// </summary>
-        public static long MaxBitsCount { get; } = (long)MaxBytesCount * 8;
+        public override long BytesCount => ByteVectorHandler.GetBytesCount(CurrentBitIndex);
         /// <summary>
-        /// Коллекция байт
-        /// </summary>
-        private LinkedListWrapper<byte> _ByteList { get; } = new();
-        /// <summary>
-        /// Реальный размер массива в байтах
-        /// </summary>
-        public override long BytesCount => _ByteList.Count;
-        /// <summary>
-        /// Получить коллекцию байт
+        /// Получить массив байт
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<byte> GetBytes() => _ByteList.Elements;
-        /// <summary>
-        /// Текущий индекс в коллекции
-        /// </summary>
-        public long CurrentBitIndex { get; protected set; } = 0;
-        /// <summary>
-        /// Добавить некоторое число бит к коллекции
-        /// </summary>
-        public void AppendBits(long bitsCount)
+        public override byte[] GetByteArray()
         {
-            _VerifyCollectionBitSizeModification(bitsCount);
+            byte[] data = new byte[ByteVectorHandler.GetBytesCount(CurrentBitIndex)];
 
-            long targetBitLength = CurrentBitIndex + bitsCount;
-            // В случае, если целевое количество бит превышает текущее выделенное, то расширяем коллекцию байт
-            if (targetBitLength > BitsCount)
+            int bitPosition = 0;
+            foreach (var record in _Records)
             {
-                long appendingBytesCount = targetBitLength - BitsCount;
-                appendingBytesCount = appendingBytesCount / 8 + (appendingBytesCount % 8 > 0 ? 1 : 0);
+                ByteVectorHandler.SetVectorParamValue(data, record.BinarySize, bitPosition, record.GetValue());
+                bitPosition += record.BinarySize;
+            }
 
-                _ByteList.CreateAndAppendToEnd((int)(appendingBytesCount));
+            return data;
+        }
+        /// <summary>
+        /// Добавить содержимое другого объекта построения байтового массива и сдвинуться в конец
+        /// </summary>
+        protected override void _AppenBuilderAndShiftToEnd(ABinaryDataWriter builder)
+        {
+            if (builder is BinaryArrayBuilder)
+            {
+                foreach (var record in ((BinaryArrayBuilder)builder)._Records)
+                {
+                    _Records.AddLast(record);
+                }
+            }
+            else
+            {
+                foreach (var byteValue in builder.GetByteArray())
+                {
+                    _Records.AddLast(new UInt8ValueRecord(byteValue, 8));
+                }
             }
         }
         /// <summary>
         /// Добавить байт в начало коллекции
         /// </summary>
-        public override void AppendByteToHead(byte byteValue)
+        protected override void _AppendByteToHead(byte byteValue)
         {
-            _VerifyCollectionBitSizeModification(8);
-
-            CurrentBitIndex += 8;
-            _ByteList.AppendToHead(byteValue);
+            _Records.AddFirst(new UInt8ValueRecord(byteValue, 8));
         }
         /// <summary>
         /// Записать битовое поле
         /// </summary>
-        public override void AppendValue(int bitsCount, ulong value, BinaryAlignmentTypeEnum alignment)
+        protected override void _AppendValue(int bitsCount, ulong value)
         {
-            // Применение выравнивания
-            MakeAlignment(alignment);
-
-            // Вызов логики дополнения вектора байт
-            {
-                AppendBits(bitsCount);
-            }
-
-            // Количества задействованных байт
-            int takingBytesCount = _GetTakenBytesCount(bitsCount);
-
-            // Обработка установки значения
-            {
-                _ByteList.Take(takingBytesCount, (oldValues) =>
-                {
-                    return ByteVectorHandler.SetVectorParamValue(oldValues, bitsCount, CurrentBitIndex % 8, value);
-                });
-            }
-
-            // Смещение коллекции байт и индекса бита
-            {
-                // Смещение индекса текущего бита
-                CurrentBitIndex += bitsCount;
-                // Определяем смещение в коллекции байт
-                if (takingBytesCount == 1
-                    && CurrentBitIndex % 8 == 0)
-                {
-                    // Если полностью был задействован байт
-                    _ByteList.Shift(takingBytesCount);
-                }
-                else if (takingBytesCount > 1)
-                {
-                    if (CurrentBitIndex % 8 == 0)
-                    {
-                        // Если полностью был задействован байт
-                        _ByteList.Shift(takingBytesCount);
-                    }
-                    else
-                    {
-                        // Если что-то осталось
-                        _ByteList.Shift(takingBytesCount - 1);
-                    }
-                }
-            }
-        }
-        /// <summary>
-        /// Добавить содержимое другого объекта построения байтового массива и сдвинуться в конец
-        /// </summary>
-        public override void AppenBuilderAndShiftToEnd(ABinaryDataWriter builder)
-        {
-            if (builder is null
-                || builder.BytesCount == 0)
-            {
-                return;
-            }
-
-            _VerifyCollectionByteSizeModification(builder.BytesCount);
-            // Модификация коллекции
-            {
-                _ByteList.AppendElements(builder.GetBytes());
-
-                _ByteList.ShiftToEnd();
-                CurrentBitIndex = BitsCount;
-            }
-        }
-        /// <summary>
-        /// Расчет количества задействованных байт
-        /// </summary>
-        /// <returns></returns>
-        private int _GetTakenBytesCount(int bitsCount)
-        {
-            if (bitsCount == 0)
-            {
-                return 0;
-            }
-
-            int byteShift = 8 - (int)(CurrentBitIndex % 8);
-            //int targetBitLength = CurrentBitIndex + bitsCount;
-
-            // Определение, задействован ли полностью текущий байт
-            int firstPart = byteShift > 0 ? 1 : 0;
-            // Определение количества полных байт
-            int middlePart = (bitsCount - byteShift) / 8;
-            // Определение, задействован последний неполный байт
-            int lastPart = (bitsCount - byteShift) % 8 > 0 ? 1 : 0;
-
-            return firstPart + middlePart + lastPart;
+            _Records.AddLast(BaseBinaryRecord.CreateRecord(value, (sbyte)bitsCount));
         }
         /// <summary>
         /// Сделать байтовое выравнивание
         /// </summary>
-        public override void MakeAlignment(BinaryAlignmentTypeEnum alignment)
+        protected override void _MakeAlignment(int alignmentBitsCount)
         {
-            long alignmentOffset = 0;
-            // Выбор типа выравнивания
-            switch (alignment)
-            {
-                case BinaryAlignmentTypeEnum.ByteAlignment:
-                    alignmentOffset = CurrentBitIndex % 8 == 0 ? 0 : 8 - CurrentBitIndex % 8;
-                    break;
-                default: break;
-            }
-
-            if (alignmentOffset > 0)
-            {
-                _VerifyCollectionByteSizeModification(alignmentOffset);
-                // Добавление недостающего вектора данных
-                AppendBits(alignmentOffset);
-
-                // Количество байт сдвига (гарантированно на 1 байт)
-                int alignmentByteShifting = (int)(alignmentOffset / 8) + 1;
-                // Сдвиг в векторе данных
-                _ByteList.Shift(alignmentByteShifting);
-
-                // Сдвиг индекса битов
-                CurrentBitIndex += alignmentOffset;
-            }
+            _Records.AddLast(new EmptyValueRecord((sbyte)alignmentBitsCount));
         }
         /// <summary>
         /// Очистить объект построения бинарной коллекции
         /// </summary>
-        public override void Clear()
-        {
-            _ByteList.Clear();
-            CurrentBitIndex = 0;
-        }
-        /// <summary>
-        /// Верификация размера коллекции в байтах
         /// </summary>
-        /// <param name="size"></param>
-        private void _VerifyCollectionBitSizeModification(long addingBitsCount)
+        protected override void _Clear()
         {
-            if ((CurrentBitIndex + addingBitsCount) > MaxBitsCount)
-            {
-                throw new ByteArrayIsOutOfMaximumLength();
-            }
-        }
-        /// <summary>
-        /// Верификация размера коллекции в байтах
-        /// </summary>
-        /// <param name="size"></param>
-        private void _VerifyCollectionByteSizeModification(long addingByteCount)
-        {
-            if ((BytesCount + addingByteCount) > MaxBytesCount)
-            {
-                throw new ByteArrayIsOutOfMaximumLength();
-            }
+            _Records.Clear();
         }
     }
 }

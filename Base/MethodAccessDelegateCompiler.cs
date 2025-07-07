@@ -65,7 +65,7 @@ namespace BinarySerializerLibrary.Base
                 throw new ReflectionMethodAccessException("Отсутствует информация о методе для создания делегата", ownerType, methodInfo);
             }
 
-            var methoDelegate = _GetMethodDelegate(ownerType, methodInfo);
+            var methoDelegate = GetMethodDelegate(ownerType, methodInfo);
 
             if (methoDelegate is not null)
             {
@@ -89,7 +89,7 @@ namespace BinarySerializerLibrary.Base
             }
         }
 
-        private static Delegate? _GetMethodDelegate(Type ownerType, MethodInfo methodInfo)
+        public static Delegate? GetMethodDelegate(Type ownerType, MethodInfo methodInfo)
         {
             try
             {

@@ -233,13 +233,13 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
             {
                 if (obj is null)
                 {
-                    throw new ObjectValueIsNullException();
+                    throw new NullableObjectException();
                 }
                 objectSerializationHandler.Invoke(obj, attribute);
             }
         }
         /// <summary>
-        /// 
+        /// Проверить, есть ли необходимость проводить сериализацию пустого объекта
         /// </summary>
         /// <returns></returns>
         public static object? CheckNullObjectDeserialization(BinaryTypeBaseAttribute attribute, ABinaryDataReader reader, Func<BinaryTypeBaseAttribute, object?> objectDeserializationHandler)

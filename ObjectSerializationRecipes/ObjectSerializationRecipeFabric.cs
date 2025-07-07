@@ -46,12 +46,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                         {
                             binaryFieldAttribute = _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property, binaryFieldAttribute);
                         }
-                        else if (!_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryFieldAttribute))
+                        // В случае, если невозможно определить атрибут свойства
+                        if (binaryFieldAttribute is null)
                         {
                             return null;
                         }
-                        // В случае, если невозможно определить атрибут свойства
-                        if (binaryFieldAttribute is null)
+                        // Верификация типа
+                        if (!_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryFieldAttribute))
                         {
                             return null;
                         }

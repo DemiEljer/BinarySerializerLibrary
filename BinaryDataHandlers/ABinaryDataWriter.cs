@@ -22,12 +22,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         /// Получить массив байт
         /// </summary>
         /// <returns></returns>
-        public byte[] GetByteArray() => GetBytes().ToArray();
-        /// <summary>
-        /// Получить коллекцию байт
-        /// </summary>
-        /// <returns></returns>
-        public abstract IEnumerable<byte> GetBytes();
+        public abstract byte[] GetByteArray();
         /// <summary>
         /// Добавить байт в начало коллекции
         /// </summary>
@@ -48,5 +43,6 @@ namespace BinarySerializerLibrary.BinaryDataHandlers
         /// Добавить содержимое другого объекта построения байтового массива и сдвинуться в конец
         /// </summary>
         public abstract void AppenBuilderAndShiftToEnd(ABinaryDataWriter builder);
+
     }
 }

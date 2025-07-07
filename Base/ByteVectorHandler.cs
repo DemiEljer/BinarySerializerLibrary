@@ -181,7 +181,18 @@ namespace BinarySerializerLibrary.Base
                 return GetMask(bitSize) - (ulong)(-value) + 1;
             }
         }
-
+        /// <summary>
+        /// Получить количество байт из бит
+        /// </summary>
+        /// <param name="bitsCount"></param>
+        /// <returns></returns>
+        public static long GetBytesCount(long bitsCount) => (bitsCount / 8) + (bitsCount % 8 == 0 ? 0 : 1);
+        /// <summary>
+        /// Получить количество недостаюших бит до байта
+        /// </summary>
+        /// <param name="bitsCount"></param>
+        /// <returns></returns>
+        public static int GetDeltaBits(long bitsCount) => (int)(bitsCount % 8 == 0 ? 0 : 8 - (bitsCount % 8));
         /// <summary>
         /// Получить значение параметра из вектора данных
         /// </summary>
@@ -235,29 +246,37 @@ namespace BinarySerializerLibrary.Base
         /// <returns></returns>
         public static void SetVectorParamValue(byte[]? data, int bitSize, long bitPosition, UInt64 value)
         {
-            if (data != null)
+            if (data is null 
+                || data.Length == 0
+                || bitSize == 0
+                || (data.Length * 8) < (bitPosition + bitSize))
             {
-                int startByteIndex = (int)(bitPosition / 8);
-                int bytesCount = bitSize / 8 + (bitSize % 8 == 0 ? 0 : 1);
+                return;
+            }
 
-                if (startByteIndex < data.Length
-                    && (startByteIndex + bytesCount) <= data.Length)
+            // Смещение выходного значения
+            int shift = (int)(bitPosition % 8);
+
+            if (bitSize > (8 - shift))
+            {
+                // Текущий индекс байта
+                int currentBytePosition = (int)(bitPosition / 8);
+                // Текущий индекс бита
+                int currentBitPosition = 8 - shift;
+                // Инициализируем первые биты
+                data[currentBytePosition] |= (byte)(value << shift);
+                currentBytePosition += 1;
+
+                while (currentBitPosition < bitSize)
                 {
-                    IEnumerable<byte> _GetOriginBytes()
-                    {
-                        foreach (var index in Enumerable.Range(startByteIndex, bytesCount))
-                        {
-                            yield return data[index];
-                        }
-                    }
-
-                    int byteIndex = startByteIndex;
-                    foreach (var resultValue in SetVectorParamValue(_GetOriginBytes(), bitSize, bitPosition, value))
-                    {
-                        data[byteIndex] = resultValue;
-                        byteIndex++;
-                    }
+                    data[currentBytePosition] |= (byte)(value >> currentBitPosition);
+                    currentBitPosition += 8;
+                    currentBytePosition += 1;
                 }
+            }
+            else
+            {
+                data[bitPosition / 8] |= (byte)(value << shift);
             }
         }
         /// <summary>
@@ -270,7 +289,7 @@ namespace BinarySerializerLibrary.Base
         /// <returns></returns>
         public static IEnumerable<byte> SetVectorParamValue(IEnumerable<byte>? data, int bitSize, long bitPosition, UInt64 value)
         {
-            if (data == null || !data.Any())
+            if (data is null || !data.Any())
             {
                 yield break;
             }

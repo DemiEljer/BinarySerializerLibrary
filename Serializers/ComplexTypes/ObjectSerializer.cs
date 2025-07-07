@@ -36,6 +36,8 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
             }
 
             BinaryDataLengthParameterHelpers.PackBinaryCollectionSize(binaryBuilder);
+
+            binaryBuilder.MakeAlignment(BinaryAlignmentTypeEnum.ByteAlignment);
         }
 
         public static TObject? DeserializeObject<TObject>(ABinaryDataReader binaryReader)
@@ -95,7 +97,7 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
                 // Если размер прочитать невозможно или сериализованный объект пустой, то возвращаем null
                 if (serializedObjectSize is null
                     || serializedObjectSize == 0
-                    || binaryReader.BytesCount < binaryReader.ByteIndex + serializedObjectSize)
+                    || binaryReader.BytesCount < (binaryReader.ByteIndex + serializedObjectSize))
                 {
                     return false;
                 }
