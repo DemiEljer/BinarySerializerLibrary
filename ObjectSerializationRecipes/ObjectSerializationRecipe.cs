@@ -42,7 +42,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             foreach (var propertyNameIndex in Enumerable.Range(0, newPropertiesRecipesSequence.Length))
             {
                 var propertyRecipe = PropertiesRecipes.FirstOrDefault(_propertyRecipe => _propertyRecipe.Property.Name == propertiesNames[propertyNameIndex]);
-                // � ������, ���� �������� ���� ����������, �� ������ ��� �� ���������� ������
+                // В случае, если свойство не было обнаружено в списке, то выводим ошибку
                 if (propertyRecipe is not null)
                 {
                     newPropertiesRecipesSequence[propertyNameIndex] = propertyRecipe;
@@ -51,6 +51,11 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 {
                     return false;
                 }
+            }
+            // В случае, если был проинициализирован не весь список рецептов свойств 
+            if (newPropertiesRecipesSequence.FirstOrDefault(recipe => recipe is null) != null)
+            {
+                return false;
             }
 
             PropertiesRecipes = newPropertiesRecipesSequence;

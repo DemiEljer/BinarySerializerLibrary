@@ -598,7 +598,7 @@ namespace BinarySerializerLibrary
         {
             BinaryArrayReader ar = new BinaryArrayReader(binaryData);
 
-            while (ar.IsEndOfCollection)
+            while (!ar.IsEndOfCollection)
             {
                 var description = DeserializeExceptionThrowing<ObjectTypeDescription>(ar);
 

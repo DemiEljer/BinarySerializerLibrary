@@ -26,7 +26,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         public ObjectSerializationRecipe? CreateRecipe(Type objectType)
         {
             // В случае, если тип не является классом или нет конструкторов по умолчанию, то прекращаем генерацию рецепта
-            if (!_TypeVerificationAndExtractionHandler.VerifyObjectType(objectType))
+            if (!VerifyType(objectType))
             {
                 return null;
             }
@@ -41,24 +41,16 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 {
                     if (propertyAttribute is BinaryTypeBaseAttribute)
                     {
-                        var binaryPropertyAttribute = propertyAttribute as BinaryTypeBaseAttribute;
-                        // Извлечение атрибута типа
-                        if (binaryPropertyAttribute is BinaryTypeAutoAttribute)
-                        {
-                            binaryPropertyAttribute = _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property, binaryPropertyAttribute);
-                        }
-                        // В случае, если невозможно определить атрибут свойства
-                        if (binaryPropertyAttribute is null)
-                        {
-                            return null;
-                        }
-                        // Верификация типа
-                        if (!_TypeVerificationAndExtractionHandler.VerifyProperty(property, binaryPropertyAttribute))
-                        {
-                            return null;
-                        }
+                        var propertyRecipe = CreatePropertyRecipe(objectType, property, propertyAttribute as BinaryTypeBaseAttribute);
 
-                        recipes.Add(CreatePropertyRecipe(objectType, property, binaryPropertyAttribute));
+                        if (propertyRecipe is not null)
+                        {
+                            recipes.Add(propertyRecipe);
+                        }
+                        else
+                        {
+                            return null;
+                        }
 
                         break;
                     }
@@ -68,22 +60,10 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             return new ObjectSerializationRecipe(objectType, recipes.ToArray());
         }
 
-        public static BaseObjectPropertySerializationRecipe CreatePropertyRecipe(Type objectType, PropertyInfo property, BinaryTypeBaseAttribute attribute)
-        {
-            if (ComplexBaseTypeSerializer.IsComplexType(attribute))
-            {
-                return new ComplexObjectPropertySerializationRecipe(objectType, property, attribute);
-            }
-            else
-            {
-                return new AtomicObjectPropertySerializationRecipe(objectType, property, attribute);
-            }
-        }
-
         public bool VerifyRecipe(Type objectType, ObjectSerializationRecipe recipe)
         {
             // В случае, если тип не является классом или нет конструкторов по умолчанию, то прекращаем генерацию рецепта
-            if (!_TypeVerificationAndExtractionHandler.VerifyObjectType(objectType))
+            if (!VerifyType(objectType))
             {
                 return false;
             }
@@ -95,14 +75,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 {
                     return false;
                 }
-                var binaryPropertyAttribute = property.PropertyAttribute;
-                // Автоматическое определение атрибута свойства
-                if (binaryPropertyAttribute is BinaryTypeAutoAttribute)
+                // Запрет на использование данного атрибута
+                if (property.PropertyAttribute is BinaryTypeAutoAttribute)
                 {
-                    binaryPropertyAttribute = _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property.Property, binaryPropertyAttribute);
+                    return false;
                 }
                 // Верификация типа
-                if (!_TypeVerificationAndExtractionHandler.VerifyProperty(property.Property, binaryPropertyAttribute))
+                if (!VerifyProperty(property.Property, property.PropertyAttribute))
                 {
                     return false;
                 }
@@ -110,5 +89,44 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
             return true;
         }
+
+        public BaseObjectPropertySerializationRecipe? CreatePropertyRecipe(Type objectType, PropertyInfo property, BinaryTypeBaseAttribute? attribute)
+        {
+            // Проверка, что свойство принадлежит типу
+            if (!objectType.GetProperties().Contains(property))
+            {
+                return null;
+            }
+            // Извлечение атрибута типа
+            if (attribute is BinaryTypeAutoAttribute)
+            {
+                attribute = ExtractPropertyAttribute(property, attribute);
+            }
+            // В случае, если невозможно определить атрибут свойства
+            if (attribute is null)
+            {
+                return null;
+            }
+            // Верификация свойства
+            if (!VerifyProperty(property, attribute))
+            {
+                return null;
+            }
+            // Проверка и создание итогового рецепта свойства
+            if (ComplexBaseTypeSerializer.IsComplexType(attribute))
+            {
+                return new ComplexObjectPropertySerializationRecipe(objectType, property, attribute);
+            }
+            else
+            {
+                return new AtomicObjectPropertySerializationRecipe(objectType, property, attribute);
+            }
+        }
+
+        public bool VerifyType(Type objectType) => _TypeVerificationAndExtractionHandler.VerifyObjectType(objectType);
+
+        public bool VerifyProperty(PropertyInfo property, BinaryTypeBaseAttribute attribute) => _TypeVerificationAndExtractionHandler.VerifyProperty(property, attribute);
+
+        public BinaryTypeBaseAttribute? ExtractPropertyAttribute(PropertyInfo property, BinaryTypeBaseAttribute attribute) => _TypeVerificationAndExtractionHandler.GetPropertyAttribute(property, attribute);
     }
 }

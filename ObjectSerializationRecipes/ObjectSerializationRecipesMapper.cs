@@ -98,11 +98,15 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
             return null;
         }
-
         /// <summary>
         /// Проверить верификацию рецепта
         /// </summary>
         /// <param name="objectType"></param>
         public static void CheckRecipeVerification(Type objectType) => GetOrCreateRecipe(objectType);
+        /// <summary>
+        /// Получить доступ к фабрике рецептов
+        /// </summary>
+        /// <returns></returns>
+        public static ObjectSerializationRecipeFabric GetFabric() => _ObjectRecipesFabric;
     }
 }

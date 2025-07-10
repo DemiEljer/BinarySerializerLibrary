@@ -30,7 +30,14 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 throw new ObjectTypeIsNullException();
             }
 
-            ObjectType = objectType;
+            if (ObjectSerializationRecipesMapper.GetFabric().VerifyType(objectType))
+            {
+                ObjectType = objectType;
+            }
+            else
+            {
+                throw new ObjectTypeVerificationFailedException(objectType);
+            }
         }
         /// <summary>
         /// Добавить свойство
@@ -45,7 +52,16 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 throw new PropertyIsNullException();
             }
 
-            ObjectSerializationRecipeFabric.CreatePropertyRecipe(ObjectType, property, attribute);
+            var propertyRecipe = ObjectSerializationRecipesMapper.GetFabric().CreatePropertyRecipe(ObjectType, property, attribute);
+
+            if (propertyRecipe is not null)
+            {
+                PropertiesRecipes.Add(propertyRecipe);
+            }
+            else
+            {
+                throw new ObjectTypeVerificationFailedException(ObjectType);
+            }
 
             return this;
         }
@@ -61,7 +77,16 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 throw new PropertyIsNullException();
             }
 
-            ObjectSerializationRecipeFabric.CreatePropertyRecipe(ObjectType, property, new BinaryTypeAutoAttribute());
+            var propertyRecipe = ObjectSerializationRecipesMapper.GetFabric().CreatePropertyRecipe(ObjectType, property, new BinaryTypeAutoAttribute());
+
+            if (propertyRecipe is not null)
+            {
+                PropertiesRecipes.Add(propertyRecipe);
+            }
+            else
+            {
+                throw new ObjectTypeVerificationFailedException(ObjectType);
+            }
 
             return this;
         }
