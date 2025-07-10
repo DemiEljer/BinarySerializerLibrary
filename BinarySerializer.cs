@@ -403,7 +403,7 @@ namespace BinarySerializerLibrary
         {
             try
             {
-                ObjectSerializationRecipesMapper.GetRecipe(typeof(ObjectType));
+                ObjectSerializationRecipesMapper.GetOrCreateRecipe(typeof(ObjectType));
             }
             catch (Exception e)
             {
@@ -437,7 +437,7 @@ namespace BinarySerializerLibrary
 
             try
             {
-                ObjectSerializationRecipesMapper.GetRecipe(objectType);
+                ObjectSerializationRecipesMapper.GetOrCreateRecipe(objectType);
             }
             catch (Exception e)
             {
@@ -446,6 +446,60 @@ namespace BinarySerializerLibrary
                 return;
             }
         }
+        /// <summary>
+        /// Получить рецепт сериализации объекта
+        /// </summary>
+        /// <typeparam name="ObjectType"></typeparam>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static ObjectSerializationRecipe? GetObjectRecipe<ObjectType>(Action<Exception>? exceptionCallback = null)
+            where ObjectType : class
+        {
+            return GetObjectRecipeExceptionShielding(typeof(ObjectType));
+        }
+        /// <summary>
+        /// Получить рецепт сериализации объекта
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <returns></returns>
+        public static ObjectSerializationRecipe? GetObjectRecipeExceptionThrowing(Type objectType)
+        {
+            return GetObjectRecipeExceptionShielding(objectType, (e) => throw e);
+        }
+        /// <summary>
+        /// Получить рецепт сериализации объекта
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="exceptionCallback"></param>
+        /// <returns></returns>
+        public static ObjectSerializationRecipe? GetObjectRecipeExceptionShielding(Type objectType, Action<Exception>? exceptionCallback = null)
+        {
+            if (objectType is null)
+            {
+                exceptionCallback?.Invoke(new ObjectTypeIsNullException());
+
+                return null;
+            }
+
+            return ObjectSerializationRecipesMapper.GetRecipe(objectType);
+        }
+        /// <summary>
+        /// Получить все рецепты сериализации объектов, созданные в данный момент времени
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<ObjectSerializationRecipe> GetAllObjectsRecipes() => ObjectSerializationRecipesMapper.ObjectsRecipes;
+        /// <summary>
+        /// Создать рецепт сериализации объекта вручную
+        /// </summary>
+        /// <typeparam name="ObjectType"></typeparam>
+        /// <returns></returns>
+        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing<ObjectType>() => CreateObjectRecipeExceptionThrowing(typeof(ObjectType));
+        /// <summary>
+        /// Создать рецепт сериализации объекта вручную
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <returns></returns>
+        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing(Type objectType) => ObjectSerializationRecipesMapper.AddRecipe(objectType);
 
         #endregion CookRecipe
 
@@ -483,7 +537,7 @@ namespace BinarySerializerLibrary
         {
             try
             {
-                BinarySerializerObjectTypeMapper.RegisterType(objectType, typeCode);
+                ObjectTypeMapper.RegisterType(objectType, typeCode);
             }
             catch (Exception e)
             {
@@ -494,8 +548,64 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<ObjectTypeCodePair> GetRegisteredTypesForAutoSerialization() => 
-            BinarySerializerObjectTypeMapper.ObjectTypes;
+            ObjectTypeMapper.ObjectTypes;
 
         #endregion TypesRegistration
+
+        #region TypesDescriptions
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<ObjectTypeDescription> GetTypesDescriptionsExceptionThrowing() => GetAllObjectsRecipes().Select(recipe => new ObjectTypeDescription(recipe));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static string GetTypesDescriptionsStringExceptionThrowing() => ObjectTypeDescription.SequenceToString(GetTypesDescriptionsExceptionThrowing());
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] GetTypesDescriptionsBinaryExceptionThrowing()
+        {
+            BinaryArrayBuilder ab = new();
+
+            foreach (var description in GetTypesDescriptionsExceptionThrowing())
+            {
+                SerializeExceptionThrowing(ab, description);
+            }
+
+            return ab.GetByteArray();
+        }
+        /// <summary>
+        /// Применить описания типов
+        /// </summary>
+        /// <param name="content"></param>
+        public static void ApplyTypesDescriptionsExceptionThrowing(string content)
+        {
+            foreach (var description in ObjectTypeDescription.ParseSequence(content))
+            {
+                description.ApplyDescription();
+            }
+        }
+        /// <summary>
+        /// Применить описания типов
+        /// </summary>
+        /// <param name="binaryData"></param>
+        public static void ApplyTypesDescriptionsExceptionThrowing(byte[] binaryData)
+        {
+            BinaryArrayReader ar = new BinaryArrayReader(binaryData);
+
+            while (ar.IsEndOfCollection)
+            {
+                var description = DeserializeExceptionThrowing<ObjectTypeDescription>(ar);
+
+                description?.ApplyDescription();
+            }
+        }
+
+        #endregion TypesDescriptions
     }
 }

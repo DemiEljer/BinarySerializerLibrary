@@ -1,5 +1,6 @@
 using BinarySerializerLibrary.Enums;
 using BinarySerializerLibrary.Exceptions;
+using BinarySerializerLibrary.ObjectSerializationRecipes;
 using BinarySerializerLibrary.Serializers.ComplexTypes;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers.Helpers
         {
             if (binaryWriter is not null)
             {
-                int objectTypeCode = BinarySerializerObjectTypeMapper.GetCode(objectType);
+                int objectTypeCode = ObjectTypeMapper.GetCode(objectType);
 
                 if (ComplexBaseTypeSerializer.SerializeScalableIntValue(BinaryAlignmentTypeEnum.ByteAlignment, objectTypeCode, binaryWriter) < 0)
                 {
@@ -32,7 +33,7 @@ namespace BinarySerializerLibrary.BinaryDataHandlers.Helpers
             {
                 int objectTypeCode = ComplexBaseTypeSerializer.DeserializeScalableIntValue(BinaryAlignmentTypeEnum.ByteAlignment, binaryReader);
 
-                return (BinarySerializerObjectTypeMapper.GetType(objectTypeCode), objectTypeCode);
+                return (ObjectTypeMapper.GetType(objectTypeCode), objectTypeCode);
             }
 
             return (null, 0);

@@ -12,23 +12,55 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 {
     public class ObjectSerializationRecipe
     {
-        public BaseObjectPropertySerializationRecipe[] FieldsRecipes { get; }
+        public Type ObjectType { get; }
 
-        public ObjectSerializationRecipe(BaseObjectPropertySerializationRecipe[]? fieldsRecipes)
+        public BaseObjectPropertySerializationRecipe[] PropertiesRecipes { get; private set; }
+
+        public ObjectSerializationRecipe(Type objectType, BaseObjectPropertySerializationRecipe[]? fieldsRecipes)
         {
+            ObjectType = objectType;
+
             if (fieldsRecipes is null)
             {
-                FieldsRecipes = Array.Empty<BaseObjectPropertySerializationRecipe>();
+                PropertiesRecipes = Array.Empty<BaseObjectPropertySerializationRecipe>();
             }
             else
             {
-                FieldsRecipes = fieldsRecipes;
+                PropertiesRecipes = fieldsRecipes;
             }
+        }
+
+        public bool TryToResetPropertiesSequence(string[] propertiesNames)
+        {
+            if (PropertiesRecipes.Length != propertiesNames.Length)
+            {
+                return false;
+            }
+
+            var newPropertiesRecipesSequence = new BaseObjectPropertySerializationRecipe[propertiesNames.Length];
+
+            foreach (var propertyNameIndex in Enumerable.Range(0, newPropertiesRecipesSequence.Length))
+            {
+                var propertyRecipe = PropertiesRecipes.FirstOrDefault(_propertyRecipe => _propertyRecipe.Property.Name == propertiesNames[propertyNameIndex]);
+                // � ������, ���� �������� ���� ����������, �� ������ ��� �� ���������� ������
+                if (propertyRecipe is not null)
+                {
+                    newPropertiesRecipesSequence[propertyNameIndex] = propertyRecipe;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            PropertiesRecipes = newPropertiesRecipesSequence;
+
+            return true;
         }
 
         public void Deserialization(object deserializingObject, ABinaryDataReader reader)
         {
-            foreach (var fieldRecipe in FieldsRecipes)
+            foreach (var fieldRecipe in PropertiesRecipes)
             {
                 fieldRecipe.Deserialization(deserializingObject, reader);
             }
@@ -36,7 +68,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
         public void Serialization(object serializingObject, ABinaryDataWriter builder)
         {
-            foreach (var fieldRecipe in FieldsRecipes)
+            foreach (var fieldRecipe in PropertiesRecipes)
             {
                 fieldRecipe.Serialization(serializingObject, builder);
             }

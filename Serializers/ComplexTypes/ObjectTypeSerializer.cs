@@ -13,7 +13,7 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
     {
         public override object? Deserialize(BinaryTypeBaseAttribute attribute, Type objType, ABinaryDataReader reader)
         {
-            var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(objType);
+            var objectRecipe = ObjectSerializationRecipesMapper.GetOrCreateRecipe(objType);
 
             var resultObject = Activator.CreateInstance(objType);
 
@@ -26,7 +26,7 @@ namespace BinarySerializerLibrary.Serializers.ComplexTypes
         }
         public override void Serialize(BinaryTypeBaseAttribute attribute, object obj, ABinaryDataWriter builder)
         {
-            var objectRecipe = ObjectSerializationRecipesMapper.GetRecipe(obj.GetType());
+            var objectRecipe = ObjectSerializationRecipesMapper.GetOrCreateRecipe(obj.GetType());
 
             objectRecipe.Serialization(obj, builder);
         }

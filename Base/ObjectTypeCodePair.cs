@@ -10,11 +10,16 @@ namespace BinarySerializerLibrary.Base
     {
         public Type ObjectType { get; }
 
-        public int ObjectTypeCode { get; }
+        public int ObjectTypeCode { get; private set; }
 
         public ObjectTypeCodePair(Type objectType, int objectTypeCode)
         {
             ObjectType = objectType;
+            ObjectTypeCode = objectTypeCode;
+        }
+
+        public void SetTypeCode(int objectTypeCode)
+        {
             ObjectTypeCode = objectTypeCode;
         }
     }
