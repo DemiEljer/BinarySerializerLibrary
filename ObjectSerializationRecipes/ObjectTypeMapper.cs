@@ -39,7 +39,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             // Приготовление рецепта для обработки типа
             ObjectSerializationRecipesMapper.GetOrCreateRecipe(objectType);
             // Валидация максимального значения кода типа
-            if (typeCode > ObjectTypeParameterHelpers.MaxTypeCode)
+            if (typeCode > ObjectTypeParameterHelpers.MaxTypeCode
+                || typeCode < 0)
             {
                 throw new UnavailablePairOfTypeAndCodeException(objectType, typeCode);
             }
