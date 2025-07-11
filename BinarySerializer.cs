@@ -360,44 +360,44 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionThrowing<ObjectType>() where ObjectType : class =>
+        public static ObjectSerializationRecipe? CookObjectRecipeExceptionThrowing<ObjectType>() where ObjectType : class =>
              CookObjectRecipeExceptionShielding<ObjectType>((e) => throw e);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionShielding<ObjectType>(Action<Exception>? exceptionCallback = null) where ObjectType : class =>
+        public static ObjectSerializationRecipe? CookObjectRecipeExceptionShielding<ObjectType>(Action<Exception>? exceptionCallback = null) where ObjectType : class =>
             CookObjectRecipeExceptionShielding(typeof(ObjectType), exceptionCallback);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionThrowing(Type? objectType) => CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
+        public static ObjectSerializationRecipe? CookObjectRecipeExceptionThrowing(Type? objectType) => CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionShielding(Type? objectType, Action<Exception>? exceptionCallback = null)
+        public static ObjectSerializationRecipe? CookObjectRecipeExceptionShielding(Type? objectType, Action<Exception>? exceptionCallback = null)
         {
             if (objectType is null)
             {
                 exceptionCallback?.Invoke(new ObjectTypeIsNullException());
 
-                return;
+                return null;
             }
 
             try
             {
-                ObjectSerializationRecipesMapper.GetOrCreateRecipe(objectType);
+                return ObjectSerializationRecipesMapper.GetOrCreateRecipe(objectType);
             }
             catch (Exception e)
             {
                 exceptionCallback?.Invoke(e);
 
-                return;
+                return null;
             }
         }
         /// <summary>

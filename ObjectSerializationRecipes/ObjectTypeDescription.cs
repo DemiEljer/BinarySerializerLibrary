@@ -65,11 +65,6 @@ namespace BinarySerializerLibrary
             {
                 throw new TypeDescriptionCreationException(recipe?.ObjectType);
             }
-           
-            if (string.IsNullOrEmpty(recipe.ObjectType.FullName))
-            {
-                throw new TypeDescriptionCreationException(recipe.ObjectType);
-            }
 
             TypeName = recipe.ObjectType.FullName;
             TypeCode = ObjectTypeMapper.GetCode(recipe.ObjectType);

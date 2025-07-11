@@ -30,6 +30,8 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
         }
 
+        public ObjectTypeDescription GetDescription() => new ObjectTypeDescription(this);
+
         public bool TryToResetPropertiesSequence(string[]? propertiesNames)
         {
             if (propertiesNames is null

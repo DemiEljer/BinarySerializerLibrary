@@ -46,6 +46,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             if (objectType is null 
                 || !objectType.IsClass 
                 || !objectType.IsPublic 
+                || objectType.IsAbstract
                 || string.IsNullOrEmpty(objectType.FullName)
                 || (objectType.IsGenericType && objectType.GetGenericArguments().Length == 0))
             {
@@ -71,6 +72,10 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             if (propertyInfo is null
                 || propertyInfo.SetMethod?.IsPublic != true
                 || propertyInfo.GetMethod?.IsPublic != true
+                || propertyInfo.SetMethod?.IsStatic != false
+                || propertyInfo.GetMethod?.IsStatic != false
+                || !propertyInfo.CanRead
+                || !propertyInfo.CanWrite
                 || attribute is null)
             {
                 return false;
