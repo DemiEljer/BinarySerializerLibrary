@@ -47,7 +47,6 @@ namespace BinarySerializerLibrary.Serializers.AtomicTypes
                 , (byte)(value >> 56 & 0xFF)
             };
 
-
             return BitConverter.ToDouble(bytes);
         }
     }

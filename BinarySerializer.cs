@@ -374,7 +374,8 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static ObjectSerializationRecipe? CookObjectRecipeExceptionThrowing(Type? objectType) => CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
+        public static ObjectSerializationRecipe? CookObjectRecipeExceptionThrowing(Type? objectType) => 
+            CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
@@ -406,20 +407,15 @@ namespace BinarySerializerLibrary
         /// <typeparam name="ObjectType"></typeparam>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static ObjectSerializationRecipe? GetObjectRecipe<ObjectType>(Action<Exception>? exceptionCallback = null)
-            where ObjectType : class
-        {
-            return GetObjectRecipeExceptionShielding(typeof(ObjectType));
-        }
+        public static ObjectSerializationRecipe? GetObjectRecipe<ObjectType>(Action<Exception>? exceptionCallback = null) where ObjectType : class =>
+            GetObjectRecipeExceptionShielding(typeof(ObjectType));
         /// <summary>
         /// Получить рецепт сериализации объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <returns></returns>
-        public static ObjectSerializationRecipe? GetObjectRecipeExceptionThrowing(Type objectType)
-        {
-            return GetObjectRecipeExceptionShielding(objectType, (e) => throw e);
-        }
+        public static ObjectSerializationRecipe? GetObjectRecipeExceptionThrowing(Type objectType) =>
+            GetObjectRecipeExceptionShielding(objectType, (e) => throw e);
         /// <summary>
         /// Получить рецепт сериализации объекта
         /// </summary>
@@ -487,10 +483,8 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="typeCode"></param>
-        public static void RegisterTypeForAutoSerializationExceptionShielding<ObjectType>(int typeCode, Action<Exception>? exceptionCallback = null)
-        {
+        public static void RegisterTypeForAutoSerializationExceptionShielding<ObjectType>(int typeCode, Action<Exception>? exceptionCallback = null) =>
             RegisterTypeForAutoSerializationExceptionShielding(typeof(ObjectType), typeCode, exceptionCallback);
-        }    
         /// <summary>
         /// Зарегистрировать тип для логики автоматической сериализации
         /// </summary>

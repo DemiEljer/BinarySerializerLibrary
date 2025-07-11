@@ -39,7 +39,6 @@ namespace BinarySerializerLibrary.Serializers.AtomicTypes
                 , (byte)(value >> 24 & 0xFF)
             };
 
-
             return BitConverter.ToSingle(bytes);
         }
     }
