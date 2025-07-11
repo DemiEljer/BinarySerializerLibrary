@@ -20,7 +20,7 @@ namespace BinarySerializerLibrary
         /// Имя типа
         /// </summary>
         [BinaryTypeString()]
-        public string TypeName { get; set; }
+        public string? TypeName { get; set; }
         /// <summary>
         /// Код типа
         /// </summary>
@@ -30,7 +30,7 @@ namespace BinarySerializerLibrary
         /// Список свйоств
         /// </summary>
         [BinaryTypeString(Enums.BinaryArgumentTypeEnum.Array)]
-        public string[] PropertiesSequence { get; set; }
+        public string[]? PropertiesSequence { get; set; }
 
         static ObjectTypeDescription()
         {
@@ -84,12 +84,12 @@ namespace BinarySerializerLibrary
 
             if (typeRecipe is not null)
             {
-                ObjectTypeMapper.RegisterType(typeRecipe.ObjectType, TypeCode);
-
                 if (!typeRecipe.TryToResetPropertiesSequence(PropertiesSequence))
                 {
                     throw new TypeDescriptionApplyingException(this);
                 }
+
+                ObjectTypeMapper.RegisterType(typeRecipe.ObjectType, TypeCode);
             }
             else
             {
@@ -102,7 +102,7 @@ namespace BinarySerializerLibrary
         /// <returns></returns>
         public override string ToString()
         {
-            return $"@{TypeName} {TypeCode} {string.Join(" ", PropertiesSequence)}";
+            return $"@{TypeName} {TypeCode} {string.Join(" ", (PropertiesSequence is null ? Array.Empty<string>() : PropertiesSequence))}";
         }
         /// <summary>
         /// Преобразовать последовательность описаний в строку
@@ -122,9 +122,28 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="descriptionsContent"></param>
         /// <returns></returns>
-        public static IEnumerable<ObjectTypeDescription> ParseSequence(string descriptionsContent)
+        public static IEnumerable<ObjectTypeDescription?> ParseSequence(string descriptionsContent, Action<Exception>? exceptionCallback = null)
         {
-            return descriptionsContent.Split("@").Where(descriptionContent => !string.IsNullOrEmpty(descriptionContent)).Select(descriptionContent => Parse(descriptionContent.Trim()));
+            return descriptionsContent.Split("@").Where(descriptionContent => !string.IsNullOrEmpty(descriptionContent)).Select(descriptionContent =>
+            {
+                try
+                {
+                    return Parse(descriptionContent);
+                }
+                catch (Exception e)
+                {
+                    if (exceptionCallback is null)
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        exceptionCallback.Invoke(e);
+
+                        return null;
+                    }
+                }
+            });
         }
         /// <summary>
         /// Распарсить объект описания типа из строки
@@ -136,7 +155,7 @@ namespace BinarySerializerLibrary
         {
             try
             {
-                var descriptionElements = descriptionContent.Split("@").Last().Split(" ").ToArray();
+                var descriptionElements = descriptionContent.Split("@").Last().Trim().Split(" ").ToArray();
 
                 ObjectTypeDescription description = new ObjectTypeDescription()
                 {

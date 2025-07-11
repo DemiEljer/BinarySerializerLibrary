@@ -80,7 +80,7 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
                 {
                     return false;
                 }
-                // Верификация типа
+                // Верификация свойства
                 if (!VerifyProperty(property.Property, property.PropertyAttribute))
                 {
                     return false;

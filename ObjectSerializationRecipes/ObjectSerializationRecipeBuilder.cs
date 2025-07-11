@@ -45,6 +45,13 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <param name="property"></param>
         /// <param name="attribute"></param>
         /// <returns></returns>
+        public ObjectSerializationRecipeBuilder AddProperty(string property, BinaryTypeBaseAttribute attribute) => AddProperty(ObjectType.GetProperty(property), attribute);
+        /// <summary>
+        /// Добавить свойство
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
         public ObjectSerializationRecipeBuilder AddProperty(PropertyInfo? property, BinaryTypeBaseAttribute attribute)
         {
             if (property is null)
@@ -70,14 +77,32 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
+        public ObjectSerializationRecipeBuilder AddProperty(string property) => AddProperty(ObjectType.GetProperty(property));
+        /// <summary>
+        /// Добавить свойство
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public ObjectSerializationRecipeBuilder AddProperty(PropertyInfo? property)
         {
             if (property is null)
             {
                 throw new PropertyIsNullException();
             }
+            // Поиск атрибута среди указанных при объявлении типа
+            var binaryAttribute = property.GetCustomAttributes(true).FirstOrDefault(attribute => attribute is BinaryTypeBaseAttribute) as BinaryTypeBaseAttribute;
 
-            var propertyRecipe = ObjectSerializationRecipesMapper.GetFabric().CreatePropertyRecipe(ObjectType, property, new BinaryTypeAutoAttribute());
+            BaseObjectPropertySerializationRecipe? propertyRecipe;
+            // В случае, если атрибут найден, то используем его
+            if (binaryAttribute is not null)
+            {
+                propertyRecipe = ObjectSerializationRecipesMapper.GetFabric().CreatePropertyRecipe(ObjectType, property, binaryAttribute);
+            }
+            // В противном случае выбираем автоматический поиск атрибутов
+            else
+            {
+                propertyRecipe = ObjectSerializationRecipesMapper.GetFabric().CreatePropertyRecipe(ObjectType, property, new BinaryTypeAutoAttribute());
+            }
 
             if (propertyRecipe is not null)
             {
@@ -93,9 +118,14 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
         /// <summary>
         /// Создать рецепт и добавить его в коллекцию
         /// </summary>
-        public void Commit()
+        public void Commit(int typeCode = 0)
         {
             ObjectSerializationRecipesMapper.AddRecipe(ObjectType, new ObjectSerializationRecipe(ObjectType, PropertiesRecipes.ToArray()));
+            // Регистрация кода типа
+            if (typeCode != 0)
+            {
+                ObjectTypeMapper.RegisterType(ObjectType, typeCode);
+            }
         }
     }
 }

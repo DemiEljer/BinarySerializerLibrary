@@ -20,11 +20,8 @@ namespace BinarySerializerLibrary
         /// <param name="obj"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static byte[] SerializeExceptionThrowing<TObject>(TObject? obj)
-            where TObject : class
-        {
-            return SerializeExceptionShielding(obj, (e) => throw e);
-        }
+        public static byte[] SerializeExceptionThrowing<TObject>(TObject? obj) where TObject : class =>
+            SerializeExceptionShielding(obj, (e) => throw e);
         /// <summary>
         /// Преобразовать объект в массив байт
         /// </summary>
@@ -48,11 +45,8 @@ namespace BinarySerializerLibrary
         /// <param name="obj"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static void SerializeExceptionThrowing<TObject>(this ABinaryDataWriter binaryBuilder, TObject? obj)
-            where TObject : class
-        {
+        public static void SerializeExceptionThrowing<TObject>(this ABinaryDataWriter binaryBuilder, TObject? obj) where TObject : class =>
             SerializeExceptionShielding(binaryBuilder, obj, (e) => throw e);
-        }
         /// <summary>
         /// Преобразовать объект в массив байт
         /// </summary>
@@ -60,11 +54,8 @@ namespace BinarySerializerLibrary
         /// <param name="obj"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static void SerializeExceptionShielding<TObject>(this ABinaryDataWriter binaryBuilder, TObject? obj, Action<Exception>? exceptionCallback = null)
-            where TObject : class
-        {
+        public static void SerializeExceptionShielding<TObject>(this ABinaryDataWriter binaryBuilder, TObject? obj, Action<Exception>? exceptionCallback = null) where TObject : class =>
             SerializeExceptionShielding(binaryBuilder, obj as object, exceptionCallback);
-        }
         /// <summary>
         /// Преобразовать объект в массив байт
         /// </summary>
@@ -72,10 +63,8 @@ namespace BinarySerializerLibrary
         /// <param name="obj"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static byte[] SerializeExceptionThrowing(object? obj)
-        {
-            return SerializeExceptionShielding(obj, (e) => throw e);
-        }
+        public static byte[] SerializeExceptionThrowing(object? obj) =>
+            SerializeExceptionShielding(obj, (e) => throw e);
         /// <summary>
         /// Преобразовать объект в массив байт
         /// </summary>
@@ -98,10 +87,8 @@ namespace BinarySerializerLibrary
         /// <param name="obj"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static void SerializeExceptionThrowing(this ABinaryDataWriter binaryBuilder, object? obj)
-        {
+        public static void SerializeExceptionThrowing(this ABinaryDataWriter binaryBuilder, object? obj) =>
             SerializeExceptionShielding(binaryBuilder, obj, (e) => throw e);
-        }
         /// <summary>
         /// Преобразовать объект в массив байт
         /// </summary>
@@ -165,11 +152,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static TObject? DeserializeExceptionThrowing<TObject>(byte[]? content)
-            where TObject : class
-        {
-            return DeserializeExceptionShielding<TObject>(content, (e) => throw e);
-        }
+        public static TObject? DeserializeExceptionThrowing<TObject>(byte[]? content) where TObject : class =>
+            DeserializeExceptionShielding<TObject>(content, (e) => throw e);
         /// <summary>
         /// Получить объект из массива байт
         /// </summary>
@@ -191,11 +175,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static TObject? DeserializeExceptionThrowing<TObject>(this ABinaryDataReader binaryReader)
-            where TObject : class
-        {
-            return DeserializeExceptionShielding<TObject>(binaryReader, (e) => throw e);
-        }
+        public static TObject? DeserializeExceptionThrowing<TObject>(this ABinaryDataReader binaryReader) where TObject : class =>
+            DeserializeExceptionShielding<TObject>(binaryReader, (e) => throw e);
         /// <summary>
         /// Получить объект с помощью байтового обработчика
         /// </summary>
@@ -203,11 +184,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static TObject? DeserializeExceptionShielding<TObject>(this ABinaryDataReader binaryReader, Action<Exception>? exceptionCallback = null)
-            where TObject : class
-        {
-            return DeserializeExceptionShielding(binaryReader, typeof(TObject), exceptionCallback) as TObject;
-        }
+        public static TObject? DeserializeExceptionShielding<TObject>(this ABinaryDataReader binaryReader, Action<Exception>? exceptionCallback = null) where TObject : class =>
+             DeserializeExceptionShielding(binaryReader, typeof(TObject), exceptionCallback) as TObject;
         /// <summary>
         /// Получить объект из массива байт
         /// </summary>
@@ -215,10 +193,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static object? DeserializeExceptionThrowing(byte[]? content, Type? objectType)
-        {
-            return DeserializeExceptionShielding(content, objectType, (e) => throw e);
-        }
+        public static object? DeserializeExceptionThrowing(byte[]? content, Type? objectType) => 
+            DeserializeExceptionShielding(content, objectType, (e) => throw e);
         /// <summary>
         /// Получить объект из массива байт
         /// </summary>
@@ -239,10 +215,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static object? DeserializeExceptionThrowing(this ABinaryDataReader binaryReader, Type? objectType)
-        {
-            return DeserializeExceptionShielding(binaryReader, objectType, (e) => throw e);
-        }
+        public static object? DeserializeExceptionThrowing(this ABinaryDataReader binaryReader, Type? objectType) => 
+            DeserializeExceptionShielding(binaryReader, objectType, (e) => throw e);
         /// <summary>
         /// Получить объект с помощью байтового обработчика
         /// </summary>
@@ -284,10 +258,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static object? AutoDeserializeExceptionThrowing(byte[]? content)
-        {
-            return AutoDeserializeExceptionShielding(content, (e) => throw e);
-        }
+        public static object? AutoDeserializeExceptionThrowing(byte[]? content) => 
+            AutoDeserializeExceptionShielding(content, (e) => throw e);
         /// <summary>
         /// Получить объект из массива байт
         /// </summary>
@@ -308,10 +280,8 @@ namespace BinarySerializerLibrary
         /// <param name="content"></param>
         /// <param name="exceptionCallback"></param>
         /// <returns></returns>
-        public static object? AutoDeserializeExceptionThrowing(this ABinaryDataReader binaryReader)
-        {
-            return AutoDeserializeExceptionShielding(binaryReader, (e) => throw e);
-        }
+        public static object? AutoDeserializeExceptionThrowing(this ABinaryDataReader binaryReader) => 
+            AutoDeserializeExceptionShielding(binaryReader, (e) => throw e);
         /// <summary>
         /// Получить объект с помощью байтового обработчика
         /// </summary>
@@ -344,13 +314,15 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="binaryReader"></param>
         /// <returns></returns>
-        public static bool CheckIfSerializedObjectSizeCanBeRead(this ABinaryDataReader binaryReader) => BinaryDataLengthParameterHelpers.CheckIfBinaryCollectionSizeCanBeRead(binaryReader);
+        public static bool CheckIfSerializedObjectSizeCanBeRead(this ABinaryDataReader binaryReader) => 
+            BinaryDataLengthParameterHelpers.CheckIfBinaryCollectionSizeCanBeRead(binaryReader);
         /// <summary>
         /// Прочитать размер сериализованного объекта в байтах
         /// </summary>
         /// <param name="binaryReader"></param>
         /// <returns></returns>
-        public static int? GetSerializedObjectSize(this ABinaryDataReader binaryReader) => BinaryDataLengthParameterHelpers.UnpackBinaryCollectionSizeWithoutShifting(binaryReader);
+        public static int? GetSerializedObjectSize(this ABinaryDataReader binaryReader) => 
+            BinaryDataLengthParameterHelpers.UnpackBinaryCollectionSizeWithoutShifting(binaryReader);
         /// <summary>
         /// Проверить, что сериализованный объект может быть прочитан
         /// </summary>
@@ -388,39 +360,21 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionThrowing<ObjectType>()
-            where ObjectType : class
-        {
-            CookObjectRecipeExceptionShielding<ObjectType>((e) => throw e);
-        }
+        public static void CookObjectRecipeExceptionThrowing<ObjectType>() where ObjectType : class =>
+             CookObjectRecipeExceptionShielding<ObjectType>((e) => throw e);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionShielding<ObjectType>(Action<Exception>? exceptionCallback = null)
-            where ObjectType : class
-        {
-            try
-            {
-                ObjectSerializationRecipesMapper.GetOrCreateRecipe(typeof(ObjectType));
-            }
-            catch (Exception e)
-            {
-                exceptionCallback?.Invoke(e);
-
-                return;
-            }
-        }
+        public static void CookObjectRecipeExceptionShielding<ObjectType>(Action<Exception>? exceptionCallback = null) where ObjectType : class =>
+            CookObjectRecipeExceptionShielding(typeof(ObjectType), exceptionCallback);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
         /// <param name="objectType"></param>
         /// <param name="exceptionCallback"></param>
-        public static void CookObjectRecipeExceptionThrowing(Type? objectType)
-        {
-            CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
-        }
+        public static void CookObjectRecipeExceptionThrowing(Type? objectType) => CookObjectRecipeExceptionShielding(objectType, (e) => throw e);
         /// <summary>
         /// Подготовить рецепт сериализации типа объекта
         /// </summary>
@@ -493,13 +447,22 @@ namespace BinarySerializerLibrary
         /// </summary>
         /// <typeparam name="ObjectType"></typeparam>
         /// <returns></returns>
-        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing<ObjectType>() => CreateObjectRecipeExceptionThrowing(typeof(ObjectType));
+        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing<ObjectType>() => 
+            CreateObjectRecipeExceptionThrowing(typeof(ObjectType));
         /// <summary>
         /// Создать рецепт сериализации объекта вручную
         /// </summary>
         /// <param name="objectType"></param>
         /// <returns></returns>
-        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing(Type objectType) => ObjectSerializationRecipesMapper.AddRecipe(objectType);
+        public static ObjectSerializationRecipeBuilder CreateObjectRecipeExceptionThrowing(Type objectType)
+        {
+            if (objectType is null)
+            {
+                throw new ObjectTypeIsNullException();
+            }
+
+            return ObjectSerializationRecipesMapper.AddRecipe(objectType);
+        }
 
         #endregion CookRecipe
 
@@ -547,32 +510,32 @@ namespace BinarySerializerLibrary
         /// Получить коллекцию зарегистрированных типов для автоматической сериализации
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<ObjectTypeCodePair> GetRegisteredTypesForAutoSerialization() => 
-            ObjectTypeMapper.ObjectTypes;
+        public static IEnumerable<ObjectTypeCodePair> GetRegisteredTypesForAutoSerialization() => ObjectTypeMapper.ObjectTypes;
 
         #endregion TypesRegistration
 
         #region TypesDescriptions
 
         /// <summary>
-        /// 
+        /// Получить коллекцию описаний зарегистрированных обрабатываемых типов
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<ObjectTypeDescription> GetTypesDescriptionsExceptionThrowing() => GetAllObjectsRecipes().Select(recipe => new ObjectTypeDescription(recipe));
+        public static IEnumerable<ObjectTypeDescription> GetTypesDescriptions() => 
+            GetAllObjectsRecipes().Select(recipe => new ObjectTypeDescription(recipe));
         /// <summary>
-        /// 
+        /// Получить коллекцию описаний зарегистрированных обрабатываемых типов в строковом представлении
         /// </summary>
         /// <returns></returns>
-        public static string GetTypesDescriptionsStringExceptionThrowing() => ObjectTypeDescription.SequenceToString(GetTypesDescriptionsExceptionThrowing());
+        public static string GetTypesDescriptionsString() => ObjectTypeDescription.SequenceToString(GetTypesDescriptions());
         /// <summary>
-        /// 
+        /// Получить коллекцию описаний зарегистрированных обрабатываемых типов в бинарном представлении
         /// </summary>
         /// <returns></returns>
-        public static byte[] GetTypesDescriptionsBinaryExceptionThrowing()
+        public static byte[] GetTypesDescriptionsBinary()
         {
             BinaryArrayBuilder ab = new();
 
-            foreach (var description in GetTypesDescriptionsExceptionThrowing())
+            foreach (var description in GetTypesDescriptions())
             {
                 SerializeExceptionThrowing(ab, description);
             }
@@ -583,26 +546,57 @@ namespace BinarySerializerLibrary
         /// Применить описания типов
         /// </summary>
         /// <param name="content"></param>
-        public static void ApplyTypesDescriptionsExceptionThrowing(string content)
+        public static void ApplyTypesDescriptionsExceptionThrowing(string content) => 
+            ApplyTypesDescriptionsExceptionShielding(content, (e) => throw e);
+        /// <summary>
+        /// Применить описания типов
+        /// </summary>
+        /// <param name="content"></param>
+        public static void ApplyTypesDescriptionsExceptionShielding(string content, Action<Exception>? exceptionCallback = null)
         {
-            foreach (var description in ObjectTypeDescription.ParseSequence(content))
+            foreach (var description in ObjectTypeDescription.ParseSequence(content, exceptionCallback))
             {
-                description.ApplyDescription();
+                if (description is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    description.ApplyDescription();
+                }
+                catch (Exception e)
+                {
+                    exceptionCallback?.Invoke(e);
+                }
             }
         }
         /// <summary>
         /// Применить описания типов
         /// </summary>
         /// <param name="binaryData"></param>
-        public static void ApplyTypesDescriptionsExceptionThrowing(byte[] binaryData)
+        public static void ApplyTypesDescriptionsExceptionThrowing(byte[] binaryData) => 
+            ApplyTypesDescriptionsExceptionShielding(binaryData, (e) => throw e);
+        /// <summary>
+        /// Применить описания типов
+        /// </summary>
+        /// <param name="binaryData"></param>
+        public static void ApplyTypesDescriptionsExceptionShielding(byte[] binaryData, Action<Exception>? exceptionCallback = null)
         {
             BinaryArrayReader ar = new BinaryArrayReader(binaryData);
 
             while (!ar.IsEndOfCollection)
             {
-                var description = DeserializeExceptionThrowing<ObjectTypeDescription>(ar);
+                try
+                {
+                    var description = DeserializeExceptionThrowing<ObjectTypeDescription>(ar);
 
-                description?.ApplyDescription();
+                    description?.ApplyDescription();
+                }
+                catch (Exception e)
+                {
+                    exceptionCallback?.Invoke(e);
+                }
             }
         }
 

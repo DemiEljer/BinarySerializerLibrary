@@ -43,7 +43,11 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
 
         public bool VerifyObjectType(Type? objectType)
         {
-            if (objectType is null || !objectType.IsClass || !objectType.IsPublic)
+            if (objectType is null 
+                || !objectType.IsClass 
+                || !objectType.IsPublic 
+                || string.IsNullOrEmpty(objectType.FullName)
+                || (objectType.IsGenericType && objectType.GetGenericArguments().Length == 0))
             {
                 return false;
             }

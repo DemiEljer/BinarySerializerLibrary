@@ -30,9 +30,10 @@ namespace BinarySerializerLibrary.ObjectSerializationRecipes
             }
         }
 
-        public bool TryToResetPropertiesSequence(string[] propertiesNames)
+        public bool TryToResetPropertiesSequence(string[]? propertiesNames)
         {
-            if (PropertiesRecipes.Length != propertiesNames.Length)
+            if (propertiesNames is null
+                || PropertiesRecipes.Length != propertiesNames.Length)
             {
                 return false;
             }
